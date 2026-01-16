@@ -321,6 +321,7 @@ Install from: https://github.com/anthropics/claude-code/tree/main/plugins
 - [ ] Claude API integration
 - [ ] Draft preview and editing
 
-### Phase 8: Backup
+### Phase 8: Finalize
 - [ ] Backup script
+- [ ] README.md 
 
