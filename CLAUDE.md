@@ -315,6 +315,7 @@ Install from: https://github.com/anthropics/claude-code/tree/main/plugins
 - [x] Kubernetes manifests (namespace, configmap, secret, pvc, deployment, service, ingress)
 - [x] deploy.sh helper script for minikube
 - [ ] Semantic versioning
+- [ ] https
 
 ### Phase 7: Voice-to-Publish
 - [ ] Voice recorder component

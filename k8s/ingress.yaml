@@ -7,9 +7,21 @@ metadata:
     app.kubernetes.io/name: fuenfgiebel
   annotations:
     nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    # Allow access via IP address (useful before DNS is configured)
+    nginx.ingress.kubernetes.io/server-alias: "_"
 spec:
   ingressClassName: nginx
   rules:
+    # Default rule for IP-based access (no hostname required)
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: fuenfgiebel
+                port:
+                  name: http
     - host: fuenfgiebel.de
       http:
         paths:
