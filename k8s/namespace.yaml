@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: fuenfgiebel
+  labels:
+    app.kubernetes.io/name: fuenfgiebel
+    app.kubernetes.io/part-of: fuenfgiebel

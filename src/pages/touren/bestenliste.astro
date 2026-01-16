@@ -1,0 +1,72 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { GableRating } from '@/components/GableRating';
+import { getLeaderboard } from '@/lib/services/entries';
+import type { TourEntry } from '@/lib/types';
+
+const entries = await getLeaderboard('tour') as TourEntry[];
+
+// Difficulty labels
+const difficultyLabels = {
+  leicht: 'Leicht',
+  mittel: 'Mittel',
+  schwer: 'Schwer',
+};
+---
+
+<BaseLayout
+  title="Touren-Bestenliste"
+  description="Die besten Wander- und Radtouren"
+>
+  <div class="container py-8 md:py-12">
+  <div class="mb-8">
+    <a
+      href="/touren"
+      class="inline-flex items-center text-sm text-muted-foreground hover:text-foreground"
+    >
+      ← Zurück zu Touren
+    </a>
+  </div>
+
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold">Bestenliste</h1>
+    <p class="mt-2 text-muted-foreground">
+      Die bestbewerteten Touren
+    </p>
+  </div>
+
+  {entries.length > 0 ? (
+    <div class="space-y-4">
+      {entries.map((entry, index) => (
+        <a
+          href={`/touren/${entry.slug}`}
+          class="group flex items-center gap-4 rounded-lg border p-4 transition-colors hover:border-primary"
+        >
+          <div class="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-lg font-bold">
+            {index + 1}
+          </div>
+          <div class="flex-1">
+            <h2 class="font-semibold group-hover:text-primary">{entry.name}</h2>
+            <p class="text-sm text-muted-foreground">
+              {[
+                entry.distance_km ? `${entry.distance_km} km` : null,
+                entry.duration,
+                entry.difficulty ? difficultyLabels[entry.difficulty] : null,
+              ]
+                .filter(Boolean)
+                .join(' · ')}
+            </p>
+          </div>
+          <GableRating client:load rating={entry.rating} size="md" showValue />
+        </a>
+      ))}
+    </div>
+  ) : (
+    <div class="rounded-lg border border-dashed p-12 text-center">
+      <p class="text-muted-foreground">
+        Noch keine Touren-Bewertungen vorhanden.
+      </p>
+    </div>
+  )}
+  </div>
+</BaseLayout>

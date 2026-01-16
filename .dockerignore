@@ -1,0 +1,45 @@
+# Dependencies
+node_modules
+
+# Build output
+dist
+
+# Git
+.git
+.gitignore
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# Environment files (secrets should come from K8s)
+.env
+.env.*
+!.env.example
+
+# Documentation
+docs
+*.md
+!README.md
+
+# Development files
+.claude
+.playwright-mcp
+*.log
+
+# Data directory (mounted as volume)
+data
+
+# Kubernetes manifests
+k8s
+
+# Test files
+*.test.*
+*.spec.*
+__tests__
+
+# OS files
+.DS_Store
+Thumbs.db

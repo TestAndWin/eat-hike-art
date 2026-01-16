@@ -1,0 +1,310 @@
+/* Self-hosted fonts via @fontsource (no Google tracking) */
+@import '@fontsource/dm-sans/latin-ext.css';
+@import '@fontsource/dm-sans/latin-ext-italic.css';
+@import '@fontsource/playfair-display/latin-ext.css';
+@import '@fontsource/playfair-display/latin-ext-italic.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /*
+     * Color palette inspired by abstract expressionist painting
+     * Warm sand tones, olive depths, gold highlights, magenta accents
+     */
+
+    /* Cream background from painting's lighter areas */
+    --background: 40 45% 94%;
+    --foreground: 60 12% 18%;
+
+    /* Cards with warm sand tone */
+    --card: 40 40% 97%;
+    --card-foreground: 60 12% 18%;
+
+    --popover: 40 40% 97%;
+    --popover-foreground: 60 12% 18%;
+
+    /* Magenta primary - the striking paint splatters */
+    --primary: 340 78% 36%;
+    --primary-foreground: 40 45% 96%;
+
+    /* Warm sand secondary */
+    --secondary: 37 30% 82%;
+    --secondary-foreground: 60 12% 20%;
+
+    /* Olive muted - from the darker painting areas */
+    --muted: 45 20% 88%;
+    --muted-foreground: 60 10% 40%;
+
+    /* Gold accent - the warm metallic touches */
+    --accent: 45 53% 54%;
+    --accent-foreground: 60 12% 15%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Warm sand borders */
+    --border: 37 25% 82%;
+    --input: 37 25% 85%;
+    --ring: 340 78% 36%;
+
+    --radius: 0.5rem;
+
+    /* Semantic colors from painting palette */
+    --magenta: 340 78% 36%;
+    --magenta-light: 340 50% 92%;
+    --olive: 60 12% 30%;
+    --olive-light: 60 15% 88%;
+    --gold: 45 53% 54%;
+    --gold-light: 45 40% 90%;
+    --sand: 37 30% 74%;
+    --sand-light: 37 35% 92%;
+    --cream: 40 45% 94%;
+
+    /* Legacy aliases for compatibility */
+    --terracotta: 340 78% 36%;
+    --terracotta-light: 340 50% 92%;
+    --sage: 60 12% 35%;
+    --sage-light: 60 15% 90%;
+
+    /* Font references */
+    --font-sans: 'DM Sans', system-ui, sans-serif;
+    --font-serif: 'Playfair Display', Georgia, serif;
+  }
+
+  .dark {
+    /* Dark mode with painting-inspired colors */
+    --background: 60 10% 8%;
+    --foreground: 40 30% 92%;
+
+    --card: 60 8% 12%;
+    --card-foreground: 40 30% 92%;
+
+    --popover: 60 8% 12%;
+    --popover-foreground: 40 30% 92%;
+
+    --primary: 340 70% 55%;
+    --primary-foreground: 60 10% 8%;
+
+    --secondary: 45 15% 18%;
+    --secondary-foreground: 40 25% 85%;
+
+    --muted: 50 10% 16%;
+    --muted-foreground: 40 15% 55%;
+
+    --accent: 45 50% 45%;
+    --accent-foreground: 60 10% 95%;
+
+    --destructive: 0 62% 45%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 50 10% 20%;
+    --input: 50 10% 20%;
+    --ring: 340 70% 55%;
+
+    --magenta: 340 70% 55%;
+    --magenta-light: 340 40% 20%;
+    --olive: 60 15% 45%;
+    --olive-light: 60 10% 18%;
+    --gold: 45 55% 50%;
+    --gold-light: 45 25% 18%;
+    --sand: 37 20% 35%;
+    --sand-light: 37 15% 18%;
+    --cream: 40 20% 15%;
+
+    --terracotta: 340 70% 55%;
+    --terracotta-light: 340 40% 20%;
+    --sage: 60 15% 45%;
+    --sage-light: 60 10% 18%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: 'kern' 1, 'liga' 1;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Elegant selection color */
+  ::selection {
+    @apply bg-terracotta/20 text-foreground;
+  }
+
+  /* Smooth focus transitions */
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+    transition: box-shadow 0.2s ease;
+  }
+
+  /* Typography defaults */
+  h1, h2, h3, h4 {
+    @apply font-serif tracking-tight;
+  }
+
+  h1 {
+    @apply text-display-md md:text-display-lg font-semibold;
+  }
+
+  h2 {
+    @apply text-display-sm md:text-display-md font-semibold;
+  }
+
+  h3 {
+    @apply text-2xl md:text-3xl font-medium;
+  }
+
+  /* Refined link styles */
+  a:not([class]) {
+    @apply text-primary transition-colors duration-200;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+
+  a:not([class]):hover {
+    @apply text-primary/80;
+  }
+}
+
+@layer components {
+  /*
+   * Texture overlays inspired by abstract expressionist painting
+   * Spatula strokes, canvas grain, and organic textures
+   */
+
+  /* Base grain texture - more pronounced like canvas */
+  .grain-overlay {
+    @apply pointer-events-none fixed inset-0 z-50;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    opacity: 0.04;
+    mix-blend-mode: multiply;
+  }
+
+  .dark .grain-overlay {
+    mix-blend-mode: soft-light;
+    opacity: 0.06;
+  }
+
+  /* Staggered animation delays */
+  .stagger-1 { animation-delay: 0.1s; }
+  .stagger-2 { animation-delay: 0.2s; }
+  .stagger-3 { animation-delay: 0.3s; }
+  .stagger-4 { animation-delay: 0.4s; }
+  .stagger-5 { animation-delay: 0.5s; }
+  .stagger-6 { animation-delay: 0.6s; }
+
+  /* Image hover effects */
+  .image-hover {
+    @apply overflow-hidden;
+  }
+
+  .image-hover img {
+    @apply transition-transform duration-700 ease-out-expo;
+  }
+
+  .image-hover:hover img {
+    @apply scale-105;
+  }
+
+  /* Card hover lift */
+  .card-hover {
+    @apply transition-all duration-300 ease-out;
+  }
+
+  .card-hover:hover {
+    @apply -translate-y-1 shadow-soft-lg;
+  }
+
+  /* Editorial quote style */
+  .editorial-quote {
+    @apply relative pl-6 font-serif text-xl italic text-muted-foreground;
+  }
+
+  .editorial-quote::before {
+    @apply absolute left-0 top-0 bottom-0 w-1 rounded-full bg-terracotta/30;
+    content: '';
+  }
+
+  /* Category badge styles - painting-inspired */
+  .badge-restaurant {
+    @apply bg-magenta-light text-magenta border-magenta/20;
+  }
+
+  .badge-kunst {
+    @apply bg-gold-light text-gold border-gold/20;
+  }
+
+  .badge-tour {
+    @apply bg-olive-light text-olive border-olive/20;
+  }
+
+  /* Expressive underline - like a brush stroke */
+  .brush-underline {
+    position: relative;
+    display: inline-block;
+  }
+
+  .brush-underline::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -4px;
+    height: 3px;
+    background: linear-gradient(
+      90deg,
+      hsl(var(--magenta) / 0.8) 0%,
+      hsl(var(--magenta) / 0.4) 40%,
+      hsl(var(--gold) / 0.6) 70%,
+      hsl(var(--gold) / 0.3) 100%
+    );
+    border-radius: 2px;
+    transform: scaleX(0.95) skewX(-5deg);
+  }
+
+}
+
+@layer utilities {
+  /* Text balance for headings */
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Gradient text */
+  .text-gradient {
+    @apply bg-gradient-to-r from-terracotta to-gold bg-clip-text text-transparent;
+  }
+
+  /* Subtle pattern background */
+  .bg-pattern {
+    background-image: radial-gradient(circle at 1px 1px, hsl(var(--border)) 1px, transparent 0);
+    background-size: 24px 24px;
+  }
+
+  /* Fade edges for scrollable areas */
+  .fade-edges {
+    mask-image: linear-gradient(to right, transparent, black 2rem, black calc(100% - 2rem), transparent);
+  }
+
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-hidden {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hidden::-webkit-scrollbar {
+    display: none;
+  }
+}

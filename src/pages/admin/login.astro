@@ -1,0 +1,105 @@
+---
+import '@/styles/globals.css';
+import { requireAuth } from '@/lib/services/auth';
+
+// Redirect to admin if already authenticated
+const isAuthenticated = await requireAuth(Astro.cookies);
+if (isAuthenticated) {
+  return Astro.redirect('/admin');
+}
+---
+
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>Anmelden | Admin | Fünf Giebel</title>
+  </head>
+  <body class="min-h-screen bg-background font-sans antialiased">
+    <div class="flex min-h-screen items-center justify-center">
+      <div class="w-full max-w-sm space-y-6 p-6">
+        <div class="space-y-2 text-center">
+          <h1 class="text-2xl font-bold">Admin-Bereich</h1>
+          <p class="text-sm text-muted-foreground">
+            Melde dich an, um fortzufahren
+          </p>
+        </div>
+
+        <form id="login-form" class="space-y-4">
+          <div class="space-y-2">
+            <label for="password" class="text-sm font-medium">
+              Passwort
+            </label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              required
+              autocomplete="current-password"
+              class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              placeholder="Passwort eingeben"
+            />
+          </div>
+
+          <div id="error-message" class="hidden text-sm text-destructive"></div>
+
+          <button
+            type="submit"
+            class="inline-flex h-10 w-full items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground ring-offset-background transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+          >
+            Anmelden
+          </button>
+        </form>
+
+        <div class="text-center">
+          <a href="/" class="text-sm text-muted-foreground hover:underline">
+            Zurück zur Startseite
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const form = document.getElementById('login-form') as HTMLFormElement;
+      const errorMessage = document.getElementById('error-message') as HTMLDivElement;
+      const submitButton = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const password = (form.querySelector('#password') as HTMLInputElement).value;
+
+        // Disable button during submission
+        submitButton.disabled = true;
+        submitButton.textContent = 'Wird angemeldet...';
+        errorMessage.classList.add('hidden');
+
+        try {
+          const response = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password }),
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            window.location.href = '/admin';
+          } else {
+            errorMessage.textContent = data.error || 'Anmeldung fehlgeschlagen';
+            errorMessage.classList.remove('hidden');
+          }
+        } catch (error) {
+          errorMessage.textContent = 'Ein Fehler ist aufgetreten';
+          errorMessage.classList.remove('hidden');
+        } finally {
+          submitButton.disabled = false;
+          submitButton.textContent = 'Anmelden';
+        }
+      });
+    </script>
+  </body>
+</html>

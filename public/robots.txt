@@ -1,0 +1,10 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Disallow admin area
+Disallow: /admin
+Disallow: /api
+
+# Sitemap
+Sitemap: https://eat-hike-art.de/sitemap-index.xml

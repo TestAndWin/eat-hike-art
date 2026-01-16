@@ -1,0 +1,38 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: fuenfgiebel
+  namespace: fuenfgiebel
+  labels:
+    app.kubernetes.io/name: fuenfgiebel
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: fuenfgiebel.de
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: fuenfgiebel
+                port:
+                  name: http
+    # Local development with minikube
+    - host: fuenfgiebel.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: fuenfgiebel
+                port:
+                  name: http
+  # TLS configuration (uncomment for production with cert-manager)
+  # tls:
+  #   - hosts:
+  #       - fuenfgiebel.de
+  #     secretName: fuenfgiebel-tls

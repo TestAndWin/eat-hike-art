@@ -1,0 +1,256 @@
+---
+import AdminLayout from '@/layouts/AdminLayout.astro';
+import { GableRating } from '@/components/GableRating';
+import { getAllEntries } from '@/lib/services/entries';
+import { requireAuth } from '@/lib/services/auth';
+import { CATEGORY_PATHS } from '@/lib/types';
+import type { Entry } from '@/lib/types';
+
+// Check authentication first
+const isAuthenticated = await requireAuth(Astro.cookies);
+if (!isAuthenticated) {
+  return Astro.redirect('/admin/login');
+}
+
+// Get filter params
+const typeFilter = Astro.url.searchParams.get('type') || '';
+const statusFilter = Astro.url.searchParams.get('status') || '';
+
+// Get all entries
+const [restaurants, art, tours] = await Promise.all([
+  getAllEntries('restaurant'),
+  getAllEntries('art'),
+  getAllEntries('tour'),
+]);
+
+// Combine and filter
+let entries: Entry[] = [...restaurants, ...art, ...tours];
+
+if (typeFilter) {
+  entries = entries.filter((e) => e.type === typeFilter);
+}
+
+if (statusFilter) {
+  entries = entries.filter((e) => e.status === statusFilter);
+}
+
+// Sort by date descending
+entries.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+// Format date
+const dateFormatter = new Intl.DateTimeFormat('de-DE', {
+  day: '2-digit',
+  month: '2-digit',
+  year: 'numeric',
+});
+
+// Labels
+const typeLabels = {
+  restaurant: 'Restaurant',
+  art: 'Kunst',
+  tour: 'Tour',
+};
+
+const statusLabels = {
+  draft: 'Entwurf',
+  active: 'Aktiv',
+  inactive: 'Inaktiv',
+};
+
+const statusColors = {
+  draft: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+  active: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+  inactive: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300',
+};
+---
+
+<AdminLayout title="Einträge">
+  <div class="space-y-6">
+    <!-- Filters -->
+    <div class="flex flex-wrap items-center gap-4">
+      <div class="flex items-center gap-2">
+        <span class="text-sm text-muted-foreground">Typ:</span>
+        <div class="flex gap-1">
+          <a
+            href="/admin/entries"
+            class:list={[
+              'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+              !typeFilter ? 'bg-primary text-primary-foreground' : 'bg-muted hover:bg-muted/80',
+            ]}
+          >
+            Alle
+          </a>
+          <a
+            href={`/admin/entries?type=restaurant${statusFilter ? `&status=${statusFilter}` : ''}`}
+            class:list={[
+              'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+              typeFilter === 'restaurant' ? 'bg-primary text-primary-foreground' : 'bg-muted hover:bg-muted/80',
+            ]}
+          >
+            Restaurants
+          </a>
+          <a
+            href={`/admin/entries?type=art${statusFilter ? `&status=${statusFilter}` : ''}`}
+            class:list={[
+              'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+              typeFilter === 'art' ? 'bg-primary text-primary-foreground' : 'bg-muted hover:bg-muted/80',
+            ]}
+          >
+            Kunst
+          </a>
+          <a
+            href={`/admin/entries?type=tour${statusFilter ? `&status=${statusFilter}` : ''}`}
+            class:list={[
+              'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+              typeFilter === 'tour' ? 'bg-primary text-primary-foreground' : 'bg-muted hover:bg-muted/80',
+            ]}
+          >
+            Touren
+          </a>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <span class="text-sm text-muted-foreground">Status:</span>
+        <div class="flex gap-1">
+          <a
+            href={`/admin/entries${typeFilter ? `?type=${typeFilter}` : ''}`}
+            class:list={[
+              'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+              !statusFilter ? 'bg-primary text-primary-foreground' : 'bg-muted hover:bg-muted/80',
+            ]}
+          >
+            Alle
+          </a>
+          <a
+            href={`/admin/entries?${typeFilter ? `type=${typeFilter}&` : ''}status=active`}
+            class:list={[
+              'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+              statusFilter === 'active' ? 'bg-primary text-primary-foreground' : 'bg-muted hover:bg-muted/80',
+            ]}
+          >
+            Aktiv
+          </a>
+          <a
+            href={`/admin/entries?${typeFilter ? `type=${typeFilter}&` : ''}status=draft`}
+            class:list={[
+              'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+              statusFilter === 'draft' ? 'bg-primary text-primary-foreground' : 'bg-muted hover:bg-muted/80',
+            ]}
+          >
+            Entwürfe
+          </a>
+          <a
+            href={`/admin/entries?${typeFilter ? `type=${typeFilter}&` : ''}status=inactive`}
+            class:list={[
+              'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+              statusFilter === 'inactive' ? 'bg-primary text-primary-foreground' : 'bg-muted hover:bg-muted/80',
+            ]}
+          >
+            Inaktiv
+          </a>
+        </div>
+      </div>
+
+      <a
+        href="/admin/entries/new"
+        class="ml-auto inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14" />
+          <path d="M12 5v14" />
+        </svg>
+        Neuer Eintrag
+      </a>
+    </div>
+
+    <!-- Results count -->
+    <p class="text-sm text-muted-foreground">
+      {entries.length} {entries.length === 1 ? 'Eintrag' : 'Einträge'} gefunden
+    </p>
+
+    <!-- Entry list -->
+    {entries.length > 0 ? (
+      <div class="rounded-lg border">
+        <table class="w-full">
+          <thead class="border-b bg-muted/50">
+            <tr>
+              <th class="px-4 py-3 text-left text-sm font-medium">Name</th>
+              <th class="px-4 py-3 text-left text-sm font-medium">Typ</th>
+              <th class="px-4 py-3 text-left text-sm font-medium">Bewertung</th>
+              <th class="px-4 py-3 text-left text-sm font-medium">Status</th>
+              <th class="px-4 py-3 text-left text-sm font-medium">Datum</th>
+              <th class="px-4 py-3 text-right text-sm font-medium">Aktionen</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y">
+            {entries.map((entry) => (
+              <tr class="hover:bg-muted/30">
+                <td class="px-4 py-3">
+                  <div class="font-medium">{entry.name}</div>
+                  {entry.type === 'restaurant' && 'cuisine' in entry && (
+                    <div class="text-sm text-muted-foreground">{entry.cuisine}</div>
+                  )}
+                  {entry.type === 'art' && 'museum' in entry && (
+                    <div class="text-sm text-muted-foreground">{entry.museum}</div>
+                  )}
+                </td>
+                <td class="px-4 py-3">
+                  <span class="rounded-full bg-muted px-2 py-0.5 text-xs font-medium">
+                    {typeLabels[entry.type]}
+                  </span>
+                </td>
+                <td class="px-4 py-3">
+                  <GableRating client:load rating={entry.rating} size="sm" />
+                </td>
+                <td class="px-4 py-3">
+                  <span class={`rounded-full px-2 py-0.5 text-xs font-medium ${statusColors[entry.status]}`}>
+                    {statusLabels[entry.status]}
+                  </span>
+                </td>
+                <td class="px-4 py-3 text-sm text-muted-foreground">
+                  {dateFormatter.format(new Date(entry.date))}
+                </td>
+                <td class="px-4 py-3 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <a
+                      href={`/${CATEGORY_PATHS[entry.type]}/${entry.slug}`}
+                      target="_blank"
+                      class="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+                      title="Ansehen"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                        <circle cx="12" cy="12" r="3" />
+                      </svg>
+                    </a>
+                    <a
+                      href={`/admin/entries/${entry.type}/${entry.slug}`}
+                      class="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+                      title="Bearbeiten"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                        <path d="m15 5 4 4" />
+                      </svg>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    ) : (
+      <div class="rounded-lg border border-dashed p-12 text-center">
+        <p class="text-muted-foreground">Keine Einträge gefunden.</p>
+        <a
+          href="/admin/entries/new"
+          class="mt-4 inline-flex items-center gap-2 text-sm text-primary hover:underline"
+        >
+          Ersten Eintrag erstellen
+        </a>
+      </div>
+    )}
+  </div>
+</AdminLayout>

@@ -1,0 +1,28 @@
+---
+import AdminLayout from '@/layouts/AdminLayout.astro';
+import { EntryForm } from '@/components/admin/EntryForm';
+import { requireAuth } from '@/lib/services/auth';
+
+// Check authentication first
+const isAuthenticated = await requireAuth(Astro.cookies);
+if (!isAuthenticated) {
+  return Astro.redirect('/admin/login');
+}
+---
+
+<AdminLayout title="Neuer Eintrag">
+  <div class="mx-auto max-w-3xl">
+    <div class="mb-8">
+      <a
+        href="/admin/entries"
+        class="inline-flex items-center text-sm text-muted-foreground hover:text-foreground"
+      >
+        ← Zurück zu Einträge
+      </a>
+    </div>
+
+    <h2 class="mb-6 text-2xl font-bold">Neuen Eintrag erstellen</h2>
+
+    <EntryForm client:load mode="create" />
+  </div>
+</AdminLayout>

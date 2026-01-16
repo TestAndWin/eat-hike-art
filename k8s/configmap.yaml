@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fuenfgiebel-config
+  namespace: fuenfgiebel
+  labels:
+    app.kubernetes.io/name: fuenfgiebel
+data:
+  NODE_ENV: "production"
+  PORT: "4321"
+  HOST: "0.0.0.0"
+  DATA_DIR: "/var/www/data"

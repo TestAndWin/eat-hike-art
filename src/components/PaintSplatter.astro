@@ -1,0 +1,116 @@
+---
+/**
+ * PaintSplatter - Decorative component inspired by magenta paint splatters
+ * Creates organic, random-looking dots that mimic the painting's splatter effect
+ */
+
+interface Props {
+  /** Intensity: how many splatters to show */
+  intensity?: 'subtle' | 'medium' | 'bold';
+  /** Position preset */
+  position?: 'top-right' | 'bottom-left' | 'full';
+  /** Additional classes */
+  class?: string;
+}
+
+const {
+  intensity = 'medium',
+  position = 'full',
+  class: className = ''
+} = Astro.props;
+
+// Generate splatter configurations based on intensity
+const splatterCounts = {
+  subtle: 5,
+  medium: 9,
+  bold: 15,
+};
+
+const count = splatterCounts[intensity];
+
+// Position presets for the container
+const positionClasses = {
+  'top-right': 'top-0 right-0 w-1/2 h-1/2',
+  'bottom-left': 'bottom-0 left-0 w-1/2 h-1/2',
+  'full': 'inset-0',
+};
+---
+
+<div
+  class:list={[
+    'paint-splatter pointer-events-none absolute overflow-hidden',
+    positionClasses[position],
+    className
+  ]}
+  aria-hidden="true"
+>
+  {Array.from({ length: count }).map((_, i) => {
+    // Create varied but deterministic positions based on index
+    const seed = (i * 137.508) % 100; // Golden angle for distribution
+    const seed2 = (i * 73.25) % 100;
+    const size = 3 + (seed % 8); // 3-10px
+    const opacity = 0.4 + (seed2 % 40) / 100; // 0.4-0.8
+
+    return (
+      <span
+        class="splatter-dot absolute rounded-full bg-magenta"
+        style={`
+          --dot-size: ${size}px;
+          --dot-opacity: ${opacity};
+          --dot-x: ${seed}%;
+          --dot-y: ${seed2}%;
+          --delay: ${i * 0.1}s;
+        `}
+      />
+    );
+  })}
+</div>
+
+<style>
+  .splatter-dot {
+    width: var(--dot-size);
+    height: var(--dot-size);
+    left: var(--dot-x);
+    top: var(--dot-y);
+    opacity: var(--dot-opacity);
+    animation: splatter-appear 0.6s ease-out var(--delay) both;
+  }
+
+  /* Some dots are elongated like real paint drips */
+  .splatter-dot:nth-child(3n) {
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    transform: rotate(15deg);
+  }
+
+  .splatter-dot:nth-child(5n) {
+    border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+    transform: rotate(-20deg);
+  }
+
+  /* Smaller satellite dots */
+  .splatter-dot:nth-child(4n)::after {
+    content: '';
+    position: absolute;
+    width: 40%;
+    height: 40%;
+    background: inherit;
+    border-radius: 50%;
+    top: -150%;
+    left: 50%;
+    opacity: 0.7;
+  }
+
+  @keyframes splatter-appear {
+    0% {
+      opacity: 0;
+      transform: scale(0);
+    }
+    50% {
+      transform: scale(1.2);
+    }
+    100% {
+      opacity: var(--dot-opacity);
+      transform: scale(1);
+    }
+  }
+</style>

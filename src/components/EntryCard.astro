@@ -1,0 +1,154 @@
+---
+import type { Entry, RestaurantEntry, ArtEntry, TourEntry } from '@/lib/types';
+import { CATEGORY_PATHS } from '@/lib/types';
+import { GableRating } from '@/components/GableRating';
+
+interface Props {
+  entry: Entry;
+  showCategory?: boolean;
+}
+
+const { entry, showCategory = false } = Astro.props;
+
+const categoryPath = CATEGORY_PATHS[entry.type];
+const href = `/${categoryPath}/${entry.slug}`;
+
+// Format date in German
+const dateFormatter = new Intl.DateTimeFormat('de-DE', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+});
+const formattedDate = dateFormatter.format(new Date(entry.date));
+
+// Category config with painting-inspired colors
+const categoryConfig = {
+  restaurant: {
+    label: 'Restaurant',
+    badgeClass: 'badge-restaurant',
+    accentColor: 'magenta',
+  },
+  art: {
+    label: 'Kunst',
+    badgeClass: 'badge-kunst',
+    accentColor: 'gold',
+  },
+  tour: {
+    label: 'Tour',
+    badgeClass: 'badge-tour',
+    accentColor: 'olive',
+  },
+};
+
+const config = categoryConfig[entry.type];
+
+// Type-specific metadata
+function getMetadata(entry: Entry): string[] {
+  const meta: string[] = [];
+
+  if (entry.type === 'restaurant') {
+    const r = entry as RestaurantEntry;
+    meta.push(r.cuisine);
+  } else if (entry.type === 'art') {
+    const a = entry as ArtEntry;
+    meta.push(a.museum);
+  } else if (entry.type === 'tour') {
+    const t = entry as TourEntry;
+    if (t.distance_km) meta.push(`${t.distance_km} km`);
+    if (t.duration) meta.push(t.duration);
+  }
+
+  return meta;
+}
+
+const metadata = getMetadata(entry);
+const firstImage = entry.images?.[0];
+---
+
+<a href={href} class="group block h-full">
+  <article class="relative flex h-full flex-col overflow-hidden rounded-2xl border border-border/60 bg-card shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-xl hover:border-border">
+    <!-- Accent color indicator -->
+    <div class={`absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-${config.accentColor} via-${config.accentColor}/50 to-transparent`}></div>
+
+    <!-- Image -->
+    {firstImage ? (
+      <div class="relative aspect-[4/3] overflow-hidden bg-sand-light">
+        <img
+          src={`/images/${categoryPath}/${entry.slug}/${firstImage}`}
+          alt={entry.name}
+          class="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+          loading="lazy"
+        />
+        <!-- Subtle overlay on hover -->
+        <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
+      </div>
+    ) : (
+      <div class="relative flex aspect-[4/3] items-center justify-center bg-gradient-to-br from-sand-light to-sand/30">
+        <!-- Abstract placeholder pattern -->
+        <div class="absolute inset-0 opacity-30">
+          <div class={`absolute top-1/4 right-1/4 h-16 w-16 rounded-full bg-${config.accentColor}/20 blur-xl`}></div>
+          <div class="absolute bottom-1/3 left-1/3 h-12 w-12 rounded-full bg-gold/15 blur-lg"></div>
+        </div>
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1"
+          class="relative h-12 w-12 text-olive/30"
+        >
+          <path d="M12 3L2 12h3v8h14v-8h3L12 3z" />
+          <path d="M9 20v-6h6v6" />
+        </svg>
+      </div>
+    )}
+
+    <!-- Content -->
+    <div class="flex flex-1 flex-col p-5">
+      <!-- Top row: Category badge + Rating -->
+      <div class="mb-3 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          {showCategory && (
+            <span class={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${config.badgeClass}`}>
+              <span class={`h-1 w-1 rounded-full bg-current`}></span>
+              {config.label}
+            </span>
+          )}
+        </div>
+        <GableRating client:load rating={entry.rating} size="sm" />
+      </div>
+
+      <!-- Title -->
+      <h3 class="font-serif text-lg font-semibold leading-snug transition-colors group-hover:text-primary">
+        {entry.name}
+      </h3>
+
+      <!-- Metadata -->
+      {metadata.length > 0 && (
+        <p class="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
+          {metadata.map((item, i) => (
+            <>
+              {i > 0 && <span class="h-0.5 w-0.5 rounded-full bg-current opacity-50"></span>}
+              <span>{item}</span>
+            </>
+          ))}
+        </p>
+      )}
+
+      <!-- Date at bottom -->
+      <div class="mt-auto pt-4">
+        <div class="flex items-center justify-between">
+          <time class="text-xs text-muted-foreground/70" datetime={entry.date}>
+            {formattedDate}
+          </time>
+          <!-- Hover arrow -->
+          <span class="flex items-center gap-1 text-xs font-medium text-primary opacity-0 transition-all duration-300 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0">
+            Lesen
+            <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </span>
+        </div>
+      </div>
+    </div>
+  </article>
+</a>

@@ -1,0 +1,94 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { GableRating } from '@/components/GableRating';
+import { getLeaderboard, getCuisines } from '@/lib/services/entries';
+import type { RestaurantEntry } from '@/lib/types';
+
+// Get cuisine filter from URL
+const cuisine = Astro.url.searchParams.get('cuisine') || '';
+
+const entries = await getLeaderboard('restaurant', cuisine || undefined) as RestaurantEntry[];
+const cuisines = await getCuisines();
+---
+
+<BaseLayout
+  title="Restaurant-Bestenliste"
+  description="Die besten Restaurants in Lüneburg und Umgebung"
+>
+  <div class="container py-8 md:py-12">
+  <div class="mb-8">
+    <a
+      href="/restaurants"
+      class="inline-flex items-center text-sm text-muted-foreground hover:text-foreground"
+    >
+      ← Zurück zu Restaurants
+    </a>
+  </div>
+
+  <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h1 class="text-3xl font-bold">Bestenliste</h1>
+      <p class="mt-2 text-muted-foreground">
+        Die bestbewerteten Restaurants{cuisine ? ` (${cuisine})` : ''}
+      </p>
+    </div>
+
+    {cuisines.length > 0 && (
+      <div class="flex flex-wrap gap-2">
+        <a
+          href="/restaurants/bestenliste"
+          class:list={[
+            'rounded-full px-3 py-1 text-sm font-medium transition-colors',
+            !cuisine
+              ? 'bg-primary text-primary-foreground'
+              : 'bg-muted hover:bg-muted/80',
+          ]}
+        >
+          Alle
+        </a>
+        {cuisines.map((c) => (
+          <a
+            href={`/restaurants/bestenliste?cuisine=${encodeURIComponent(c)}`}
+            class:list={[
+              'rounded-full px-3 py-1 text-sm font-medium transition-colors',
+              cuisine === c
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-muted hover:bg-muted/80',
+            ]}
+          >
+            {c}
+          </a>
+        ))}
+      </div>
+    )}
+  </div>
+
+  {entries.length > 0 ? (
+    <div class="space-y-4">
+      {entries.map((entry, index) => (
+        <a
+          href={`/restaurants/${entry.slug}`}
+          class="group flex items-center gap-4 rounded-lg border p-4 transition-colors hover:border-primary"
+        >
+          <div class="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-lg font-bold">
+            {index + 1}
+          </div>
+          <div class="flex-1">
+            <h2 class="font-semibold group-hover:text-primary">{entry.name}</h2>
+            <p class="text-sm text-muted-foreground">{entry.cuisine}</p>
+          </div>
+          <GableRating client:load rating={entry.rating} size="md" showValue />
+        </a>
+      ))}
+    </div>
+  ) : (
+    <div class="rounded-lg border border-dashed p-12 text-center">
+      <p class="text-muted-foreground">
+        {cuisine
+          ? `Keine Restaurants mit Küche "${cuisine}" gefunden.`
+          : 'Noch keine Restaurant-Bewertungen vorhanden.'}
+      </p>
+    </div>
+  )}
+  </div>
+</BaseLayout>

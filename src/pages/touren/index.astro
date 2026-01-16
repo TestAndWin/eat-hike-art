@@ -1,0 +1,44 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import EntryCard from '@/components/EntryCard.astro';
+import { getActiveEntries } from '@/lib/services/entries';
+import type { TourEntry } from '@/lib/types';
+
+const entries = await getActiveEntries('tour') as TourEntry[];
+---
+
+<BaseLayout
+  title="Touren"
+  description="Unsere Wander- und Radtouren-Reviews"
+>
+  <div class="container py-8 md:py-12">
+  <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <h1 class="text-3xl font-bold">Touren</h1>
+      <p class="mt-2 text-muted-foreground">
+        {entries.length} {entries.length === 1 ? 'Tour' : 'Touren'}
+      </p>
+    </div>
+    <a
+      href="/touren/bestenliste"
+      class="inline-flex items-center rounded-md border px-4 py-2 text-sm font-medium transition-colors hover:bg-accent"
+    >
+      Zur Bestenliste →
+    </a>
+  </div>
+
+  {entries.length > 0 ? (
+    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {entries.map((entry) => (
+        <EntryCard entry={entry} />
+      ))}
+    </div>
+  ) : (
+    <div class="rounded-lg border border-dashed p-12 text-center">
+      <p class="text-muted-foreground">
+        Noch keine Touren-Bewertungen vorhanden.
+      </p>
+    </div>
+  )}
+  </div>
+</BaseLayout>

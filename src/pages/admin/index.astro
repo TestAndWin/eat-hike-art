@@ -1,0 +1,110 @@
+---
+import AdminLayout from '@/layouts/AdminLayout.astro';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/Card';
+import { getAllEntries } from '@/lib/services/entries';
+import { requireAuth } from '@/lib/services/auth';
+
+// Check authentication first
+const isAuthenticated = await requireAuth(Astro.cookies);
+if (!isAuthenticated) {
+  return Astro.redirect('/admin/login');
+}
+
+// Get entry counts
+const [restaurants, art, tours] = await Promise.all([
+  getAllEntries('restaurant'),
+  getAllEntries('art'),
+  getAllEntries('tour'),
+]);
+
+const stats = {
+  restaurants: {
+    total: restaurants.length,
+    active: restaurants.filter((e) => e.status === 'active').length,
+    drafts: restaurants.filter((e) => e.status === 'draft').length,
+  },
+  art: {
+    total: art.length,
+    active: art.filter((e) => e.status === 'active').length,
+    drafts: art.filter((e) => e.status === 'draft').length,
+  },
+  tours: {
+    total: tours.length,
+    active: tours.filter((e) => e.status === 'active').length,
+    drafts: tours.filter((e) => e.status === 'draft').length,
+  },
+};
+
+const totalEntries = restaurants.length + art.length + tours.length;
+const totalDrafts = stats.restaurants.drafts + stats.art.drafts + stats.tours.drafts;
+---
+
+<AdminLayout title="Dashboard">
+  <div class="space-y-6">
+    <!-- Overview cards -->
+    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <Card>
+        <CardHeader className="pb-2">
+          <CardDescription>Gesamt Einträge</CardDescription>
+          <CardTitle className="text-3xl">{totalEntries}</CardTitle>
+        </CardHeader>
+      </Card>
+      <Card>
+        <CardHeader className="pb-2">
+          <CardDescription>Entwürfe</CardDescription>
+          <CardTitle className="text-3xl">{totalDrafts}</CardTitle>
+        </CardHeader>
+      </Card>
+      <Card>
+        <CardHeader className="pb-2">
+          <CardDescription>Restaurants</CardDescription>
+          <CardTitle className="text-3xl">{stats.restaurants.total}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p class="text-xs text-muted-foreground">
+            {stats.restaurants.active} aktiv, {stats.restaurants.drafts} Entwürfe
+          </p>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader className="pb-2">
+          <CardDescription>Kunst & Touren</CardDescription>
+          <CardTitle className="text-3xl">{stats.art.total + stats.tours.total}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p class="text-xs text-muted-foreground">
+            {stats.art.total} Kunst, {stats.tours.total} Touren
+          </p>
+        </CardContent>
+      </Card>
+    </div>
+
+    <!-- Quick actions -->
+    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <Card className="hover:border-primary/50 transition-colors">
+        <a href="/admin/entries/new" class="block p-6">
+          <CardHeader className="p-0 pb-2">
+            <CardTitle className="text-lg">Neuen Eintrag erstellen</CardTitle>
+            <CardDescription>Restaurant, Kunst oder Tour hinzufügen</CardDescription>
+          </CardHeader>
+        </a>
+      </Card>
+      <Card className="hover:border-primary/50 transition-colors">
+        <a href="/admin/voice" class="block p-6">
+          <CardHeader className="p-0 pb-2">
+            <CardTitle className="text-lg">Spracheingabe</CardTitle>
+            <CardDescription>Eintrag per Sprachaufnahme erstellen</CardDescription>
+          </CardHeader>
+        </a>
+      </Card>
+      <Card className="hover:border-primary/50 transition-colors">
+        <a href="/admin/entries" class="block p-6">
+          <CardHeader className="p-0 pb-2">
+            <CardTitle className="text-lg">Alle Einträge</CardTitle>
+            <CardDescription>Einträge verwalten und bearbeiten</CardDescription>
+          </CardHeader>
+        </a>
+      </Card>
+    </div>
+  </div>
+</AdminLayout>

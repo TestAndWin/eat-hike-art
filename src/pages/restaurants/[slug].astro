@@ -1,0 +1,120 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { GableRating } from '@/components/GableRating';
+import { getEntry } from '@/lib/services/entries';
+import type { RestaurantEntry } from '@/lib/types';
+
+const { slug } = Astro.params;
+const entry = await getEntry('restaurant', slug!) as RestaurantEntry | null;
+
+if (!entry || entry.status !== 'active') {
+  return Astro.redirect('/restaurants');
+}
+
+// Format date in German
+const dateFormatter = new Intl.DateTimeFormat('de-DE', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+});
+const formattedDate = dateFormatter.format(new Date(entry.date));
+
+// Sub-rating labels
+const ratingLabels = {
+  service: 'Service',
+  food: 'Essen',
+  ambiance: 'Ambiente',
+  value: 'Preis-Leistung',
+};
+
+// SEO data
+const ogImage = entry.images?.[0]
+  ? `/images/restaurants/${entry.slug}/${entry.images[0]}`
+  : undefined;
+const seoDescription = `${entry.name} - ${entry.cuisine} Restaurant mit ${entry.rating} Giebeln bewertet. ${entry.address || ''}`.trim();
+---
+
+<BaseLayout
+  title={entry.name}
+  description={seoDescription}
+  image={ogImage}
+  type="article"
+  publishedTime={entry.date}
+>
+  <article class="container py-8 md:py-12">
+    <div class="mb-8">
+      <a
+        href="/restaurants"
+        class="inline-flex items-center text-sm text-muted-foreground hover:text-foreground"
+      >
+        ← Zurück zu Restaurants
+      </a>
+    </div>
+
+    <header class="mb-8">
+      <div class="mb-4 flex flex-wrap items-center gap-3">
+        <span class="rounded-full bg-muted px-3 py-1 text-sm font-medium">
+          {entry.cuisine}
+        </span>
+        <time class="text-sm text-muted-foreground" datetime={entry.date}>
+          {formattedDate}
+        </time>
+      </div>
+      <h1 class="mb-4 text-4xl font-bold">{entry.name}</h1>
+      <div class="flex items-center gap-3">
+        <GableRating client:load rating={entry.rating} size="lg" showValue />
+      </div>
+      {entry.address && (
+        <p class="mt-4 text-muted-foreground">{entry.address}</p>
+      )}
+    </header>
+
+    {entry.images && entry.images.length > 0 && (
+      <div class="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {entry.images.map((image, index) => (
+          <div class="aspect-video overflow-hidden rounded-lg bg-muted">
+            <img
+              src={`/images/restaurants/${entry.slug}/${image}`}
+              alt={`${entry.name} - Bild ${index + 1}`}
+              class="h-full w-full object-cover"
+              loading={index === 0 ? 'eager' : 'lazy'}
+            />
+          </div>
+        ))}
+      </div>
+    )}
+
+    <div class="mb-8 rounded-lg border p-6">
+      <h2 class="mb-4 text-lg font-semibold">Bewertungen im Detail</h2>
+      <div class="grid gap-4 sm:grid-cols-2">
+        {Object.entries(entry.ratings).map(([key, value]) => (
+          <div class="flex items-center justify-between">
+            <span class="text-muted-foreground">
+              {ratingLabels[key as keyof typeof ratingLabels]}
+            </span>
+            <GableRating client:load rating={value} size="sm" showValue />
+          </div>
+        ))}
+      </div>
+    </div>
+
+    {entry.content && (
+      <div class="prose prose-neutral max-w-none dark:prose-invert">
+        <Fragment set:html={entry.content} />
+      </div>
+    )}
+
+    {entry.link && (
+      <div class="mt-8 border-t pt-8">
+        <a
+          href={entry.link}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center text-sm text-primary hover:underline"
+        >
+          Website besuchen →
+        </a>
+      </div>
+    )}
+  </article>
+</BaseLayout>
