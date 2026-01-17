@@ -60,12 +60,23 @@ enable_ingress() {
 
 # Build Docker image
 build_image() {
-    echo -e "\n${YELLOW}Building Docker image...${NC}"
+    local IMAGE_NAME="fuenfgiebel:latest"
+    local TAR_FILE="fuenfgiebel.tar"
 
-    docker build -t fuenfgiebel:latest .
+    echo -e "\n${YELLOW}Building Docker image...${NC}"
+    docker build --no-cache -t ${IMAGE_NAME} .
+
+    echo -e "${YELLOW}Exporting image to ${TAR_FILE}...${NC}"
+    docker save ${IMAGE_NAME} > ${TAR_FILE}
 
     echo -e "${YELLOW}Importing image to MicroK8s...${NC}"
-    docker save fuenfgiebel:latest | microk8s ctr image import -
+    # Remove old image to ensure update
+    microk8s ctr images rm ${IMAGE_NAME} 2>/dev/null || true
+    microk8s ctr image import ${TAR_FILE}
+
+    # Clean up tar file
+    echo -e "${YELLOW}Cleaning up...${NC}"
+    rm ${TAR_FILE}
 
     echo -e "${GREEN}Docker image built and imported${NC}"
 }
@@ -74,10 +85,17 @@ build_image() {
 apply_manifests() {
     echo -e "\n${YELLOW}Applying Kubernetes manifests...${NC}"
 
+    # Check for secrets
+    if [ ! -f "k8s/secret.yaml" ]; then
+        echo -e "${RED}⚠️  WARNING: k8s/secret.yaml not found!${NC}"
+        echo -e "${YELLOW}   Please create it from k8s/secret.yaml.example before running the application.${NC}"
+        echo -e "${YELLOW}   Continuing with deployment, but pods may fail to start...${NC}"
+    fi
+
     # Apply in order
     $KUBECTL apply -f k8s/namespace.yaml
     $KUBECTL apply -f k8s/configmap.yaml
-    $KUBECTL apply -f k8s/secret.yaml
+    $KUBECTL apply -f k8s/secret.yaml 2>/dev/null || echo -e "${YELLOW}   Skipping secret.yaml (not found)${NC}"
     # pvc.yaml not needed - using hostPath instead
     $KUBECTL apply -f k8s/deployment.yaml
     $KUBECTL apply -f k8s/service.yaml
@@ -88,24 +106,26 @@ apply_manifests() {
 
 # Wait for deployment
 wait_for_deployment() {
-    echo -e "\n${YELLOW}Waiting for deployment to be ready...${NC}"
+    echo -e "\n${YELLOW}Restarting pods to pick up new image...${NC}"
+    # Force restart because the image tag 'latest' hasn't changed,
+    # so K8s wouldn't restart automatically
+    $KUBECTL rollout restart deployment/fuenfgiebel -n fuenfgiebel
+
+    echo -e "${YELLOW}Waiting for deployment to be ready...${NC}"
     $KUBECTL rollout status deployment/fuenfgiebel -n fuenfgiebel --timeout=120s
     echo -e "${GREEN}Deployment ready${NC}"
 }
 
 # Show access information
 show_access_info() {
-    echo -e "\n${GREEN}=== Deployment Complete ===${NC}"
+    echo -e "\n${GREEN}✅ Deployment completed!${NC}"
 
     # Get server IP
     SERVER_IP=$(hostname -I | awk '{print $1}')
 
     echo -e "\n${YELLOW}Access the application:${NC}"
-    echo -e "Via Ingress (Port 80):"
-    echo -e "  http://${SERVER_IP}"
-    echo -e ""
-    echo -e "Note: Port 80 might require sudo access for ingress."
-    echo -e "If ingress is not working, check: microk8s kubectl get ingress -n fuenfgiebel"
+    echo -e "  Production: https://fuenfgiebel.de"
+    echo -e "  Via IP:     http://${SERVER_IP}"
     echo -e ""
     echo -e "${YELLOW}Data directory:${NC}"
     echo -e "  /srv/fuenfgiebel/data"
@@ -114,6 +134,7 @@ show_access_info() {
     echo -e "  $KUBECTL get pods -n fuenfgiebel"
     echo -e "  $KUBECTL logs -f deployment/fuenfgiebel -n fuenfgiebel"
     echo -e "  $KUBECTL exec -it deployment/fuenfgiebel -n fuenfgiebel -- sh"
+    echo -e "  $KUBECTL get ingress -n fuenfgiebel"
 }
 
 # Main

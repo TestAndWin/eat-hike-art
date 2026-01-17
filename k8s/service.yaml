@@ -6,14 +6,12 @@ metadata:
   labels:
     app.kubernetes.io/name: fuenfgiebel
 spec:
-  # ClusterIP for use with Ingress (default)
-  # Change to NodePort for direct access without Ingress
-  type: ClusterIP
+  type: NodePort
   ports:
     - name: http
       port: 80
       targetPort: http
       protocol: TCP
-      # nodePort: 30080  # Uncomment if type is NodePort  
+      nodePort: 30080
   selector:
     app.kubernetes.io/name: fuenfgiebel
