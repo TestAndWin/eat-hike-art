@@ -1,0 +1,20 @@
+---
+import AdminLayout from '@/layouts/AdminLayout.astro';
+import VoiceRecorder from '@/components/admin/VoiceRecorder';
+import { requireAuth } from '@/lib/services/auth';
+
+// Check authentication first
+const isAuthenticated = await requireAuth(Astro.cookies);
+if (!isAuthenticated) {
+  return Astro.redirect('/admin/login');
+}
+---
+
+<AdminLayout title="Spracheingabe">
+  <div class="max-w-2xl">
+    <p class="mb-6 text-muted-foreground">
+      Sprich deine Bewertung ein und lass sie automatisch in einen Eintrag umwandeln.
+    </p>
+    <VoiceRecorder client:load />
+  </div>
+</AdminLayout>

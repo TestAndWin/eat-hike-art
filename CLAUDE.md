@@ -75,6 +75,21 @@ Or for article pages:
 
 **Exception:** The homepage (`index.astro`) uses section-based containers for different visual sections.
 
+### Voice Recording Pattern
+
+The VoiceRecorder component (`src/components/admin/VoiceRecorder.tsx`) uses the browser MediaRecorder API:
+
+- **Audio format:** `audio/webm` (native browser format, no conversion needed)
+- **Whisper API:** Accepts WebM directly, transcribes German speech
+- **Claude API:** Converts transcript to structured entry JSON
+- **Workflow:** Record → Transcribe → Review transcript → Generate entry → Edit as draft
+
+Files involved:
+- `src/components/admin/VoiceRecorder.tsx` - React recording UI
+- `src/lib/services/voice.ts` - Whisper + Claude integration
+- `src/pages/api/voice/transcribe.ts` - Audio → text endpoint
+- `src/pages/api/voice/generate.ts` - Text → draft entry endpoint
+
 ## Design Philosophy
 
 The visual design is inspired by an original abstract expressionist painting featuring:
@@ -322,13 +337,13 @@ Install from: https://github.com/anthropics/claude-code/tree/main/plugins
 - [x] Check sitemap-index.xml
 - [x] README.md
  
-### Phase 8: Voice-to-Publish
-- [ ] Voice recorder component
-- [ ] Whisper API integration
-- [ ] Claude API integration
-- [ ] Draft preview and editing
+### Phase 8: Voice-to-Publish ✅
+- [x] Voice recorder component (MediaRecorder API, WebM format)
+- [x] Whisper API integration (transcribe.ts endpoint)
+- [x] Claude API integration (generate.ts endpoint)
+- [x] Draft preview and editing (human-in-the-loop workflow)
 
 ### Phase 9:  
 - [ ] Backup script
 - [ ] How to register page at Google for indexing
-
+- [ ] Server_setup.md updaten. kubectl Beispiele in einer Sektion, DRY.
