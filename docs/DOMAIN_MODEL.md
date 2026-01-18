@@ -258,32 +258,40 @@ stateDiagram-v2
 
 ## Image Organization
 
+Images are stored in `DATA_DIR/images/` and served via the `/api/images/` endpoint:
+
 ```
 /var/www/data/images/
 ├── restaurants/
-│   └── maelzer-brauhaus/          # matches slug
-│       ├── hero.jpg
-│       ├── bratwurst.jpg
-│       └── innenraum.jpg
-├── art/
+│   └── maelzer-brau-und-tafelhaus/    # matches slug
+│       ├── 1704365400000.jpg          # timestamp-based filenames
+│       └── 1704365412345.jpg
+├── kunst/                              # German category name
 │   └── caspar-david-friedrich-wanderer/
-│       ├── kunsthalle-eingang.jpg
-│       └── wanderer-ueber-nebelmeer.jpg
-└── tours/
+│       ├── 1704279600000.jpg
+│       └── 1704279612345.jpg
+└── touren/                             # German category name
     └── elbe-radweg-hamburg-lauenburg/
-        ├── elbe-panorama.jpg
-        └── lauenburg-altstadt.jpg
+        ├── 1703721600000.jpg
+        └── 1703721612345.jpg
 ```
 
 **Image References in Frontmatter:**
 - Only filename, not full path
-- Path constructed from `type` + `slug` + `filename`
+- Path constructed from category directory + `slug` + `filename`
+- Images served via API endpoint (not static files)
 
 ```typescript
+const TYPE_DIRS = {
+  restaurant: 'restaurants',
+  art: 'kunst',
+  tour: 'touren',
+};
+
 function getImageUrl(entry: Entry, filename: string): string {
-  return `/images/${entry.type}s/${entry.slug}/${filename}`;
+  return `/api/images/${TYPE_DIRS[entry.type]}/${entry.slug}/${filename}`;
 }
-// → /images/restaurants/maelzer-brauhaus/hero.jpg
+// → /api/images/restaurants/maelzer-brau-und-tafelhaus/1704365400000.jpg
 ```
 
 ---
@@ -300,16 +308,16 @@ Configured via `DATA_DIR` environment variable (default: `/var/www/data`):
 /var/www/data/
 ├── entries/
 │   ├── restaurants/     # Restaurant reviews (*.md files)
-│   ├── art/            # Art exhibition reviews (*.md files)
-│   └── tours/          # Tour reviews (*.md files)
-├── images/
+│   ├── art/             # Art exhibition reviews (*.md files)
+│   └── tours/           # Tour reviews (*.md files)
+├── images/              # Served via /api/images/* endpoint
 │   ├── restaurants/
-│   │   └── {slug}/     # Images for specific restaurant
-│   ├── art/
+│   │   └── {slug}/      # Images for specific restaurant
+│   ├── kunst/           # Note: German category names for images
 │   │   └── {slug}/
-│   └── tours/
+│   └── touren/
 │       └── {slug}/
-└── sessions/           # Login sessions (*.json files, auto-managed)
+└── sessions/            # Login sessions (*.json files, auto-managed)
 ```
 
 ### Production (Kubernetes)
@@ -320,16 +328,16 @@ Host path `/srv/fuenfgiebel/data` is mounted to `/var/www/data` in container:
 /srv/fuenfgiebel/data/  (host)  →  /var/www/data (container)
 ├── entries/
 │   ├── restaurants/     # Restaurant reviews (*.md files)
-│   ├── art/            # Art exhibition reviews (*.md files)
-│   └── tours/          # Tour reviews (*.md files)
-├── images/
+│   ├── art/             # Art exhibition reviews (*.md files)
+│   └── tours/           # Tour reviews (*.md files)
+├── images/              # Served via /api/images/* endpoint
 │   ├── restaurants/
-│   │   └── {slug}/     # Images for specific restaurant
-│   ├── art/
+│   │   └── {slug}/      # Images for specific restaurant
+│   ├── kunst/           # Note: German category names for images
 │   │   └── {slug}/
-│   └── tours/
+│   └── touren/
 │       └── {slug}/
-└── sessions/           # Login sessions (*.json files, auto-managed)
+└── sessions/            # Login sessions (*.json files, auto-managed)
 ```
 
 **Important:** Directory must be owned by UID/GID 1001:1001 (container user). See `docs/TECH_STACK.md` for setup instructions.

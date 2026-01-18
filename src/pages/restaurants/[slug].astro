@@ -29,7 +29,7 @@ const ratingLabels = {
 
 // SEO data
 const ogImage = entry.images?.[0]
-  ? `/images/restaurants/${entry.slug}/${entry.images[0]}`
+  ? `/api/images/restaurants/${entry.slug}/${entry.images[0]}`
   : undefined;
 const seoDescription = `${entry.name} - ${entry.cuisine} Restaurant mit ${entry.rating} Giebeln bewertet. ${entry.address || ''}`.trim();
 ---
@@ -74,7 +74,7 @@ const seoDescription = `${entry.name} - ${entry.cuisine} Restaurant mit ${entry.
         {entry.images.map((image, index) => (
           <div class="aspect-video overflow-hidden rounded-lg bg-muted">
             <img
-              src={`/images/restaurants/${entry.slug}/${image}`}
+              src={`/api/images/restaurants/${entry.slug}/${image}`}
               alt={`${entry.name} - Bild ${index + 1}`}
               class="h-full w-full object-cover"
               loading={index === 0 ? 'eager' : 'lazy'}
@@ -98,9 +98,9 @@ const seoDescription = `${entry.name} - ${entry.cuisine} Restaurant mit ${entry.
       </div>
     </div>
 
-    {entry.content && (
+    {entry.htmlContent && (
       <div class="prose prose-neutral max-w-none dark:prose-invert">
-        <Fragment set:html={entry.content} />
+        <Fragment set:html={entry.htmlContent} />
       </div>
     )}
 

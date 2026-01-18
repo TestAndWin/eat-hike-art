@@ -38,8 +38,8 @@
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                            Nginx / Caddy                                     │
 │                                                                              │
-│   /images/*  →  /var/www/data/images/   (static files)                      │
 │   /*         →  localhost:4321          (Astro SSR)                         │
+│   (Images served via /api/images/* endpoint from DATA_DIR/images/)          │
 └─────────────────────────────────────────────────────────────────────────────┘
                                       │
                                       ▼
@@ -229,7 +229,8 @@ eat-hike-art/
 │   │       │   ├── transcribe.ts  # POST: audio → text
 │   │       │   └── generate.ts    # POST: text → markdown
 │   │       ├── images/
-│   │       │   └── upload.ts      # POST: image upload
+│   │       │   ├── upload.ts      # POST: image upload
+│   │       │   └── [...path].ts   # GET: serve images from DATA_DIR
 │   │       └── auth/
 │   │           ├── login.ts       # POST: login
 │   │           └── logout.ts      # POST: logout
@@ -257,18 +258,18 @@ eat-hike-art/
 
 # External data directory (NOT in Git)
 /var/www/data/
-├── content/
+├── entries/                        # Markdown content files
 │   ├── restaurants/
-│   │   └── 2025-01-04-maelzer.md
+│   │   └── 2025-01-04-maelzer-brau-und-tafelhaus.md
 │   ├── art/
 │   └── tours/
-├── images/
+├── images/                         # Uploaded images (served via /api/images/*)
 │   ├── restaurants/
-│   │   └── maelzer/
-│   │       ├── hero.jpg
-│   │       └── interior-01.jpg
-│   ├── art/
-│   └── tours/
+│   │   └── maelzer-brau-und-tafelhaus/
+│   │       ├── 1704365400000.jpg
+│   │       └── 1704365412345.jpg
+│   ├── kunst/
+│   └── touren/
 └── sessions/
     └── abc123-def456.json
 ```

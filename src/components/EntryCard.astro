@@ -74,7 +74,7 @@ const firstImage = entry.images?.[0];
     {firstImage ? (
       <div class="relative aspect-[4/3] overflow-hidden bg-sand-light">
         <img
-          src={`/images/${categoryPath}/${entry.slug}/${firstImage}`}
+          src={`/api/images/${categoryPath}/${entry.slug}/${firstImage}`}
           alt={entry.name}
           class="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
           loading="lazy"

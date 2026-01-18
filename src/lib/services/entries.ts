@@ -34,39 +34,63 @@ async function ensureTypeDir(type: Entry['type']): Promise<void> {
 export function generateSlug(name: string): string {
   return name
     .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
+    // Replace German umlauts BEFORE NFD normalization
     .replace(/[äÄ]/g, 'ae')
     .replace(/[öÖ]/g, 'oe')
     .replace(/[üÜ]/g, 'ue')
     .replace(/ß/g, 'ss')
+    // Remove other diacritics (é → e, ñ → n, etc.)
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
 }
 
 /**
+ * Normalize a date value to YYYY-MM-DD format
+ * Handles Date objects, ISO strings, and already formatted strings
+ */
+function normalizeDate(date: string | Date): string {
+  if (date instanceof Date) {
+    return date.toISOString().split('T')[0];
+  }
+  // If it's an ISO string (contains 'T'), extract the date part
+  if (typeof date === 'string' && date.includes('T')) {
+    return date.split('T')[0];
+  }
+  // Already in YYYY-MM-DD format
+  return date;
+}
+
+/**
  * Generate a filename from date and slug
  */
-function generateFilename(date: string, slug: string): string {
-  return `${date}-${slug}.md`;
+function generateFilename(date: string | Date, slug: string): string {
+  return `${normalizeDate(date)}-${slug}.md`;
 }
 
 /**
  * Parse a markdown file to an Entry object
  */
-function parseEntry(content: string, filename: string): Entry {
-  const { data: frontmatter, content: body } = matter(content);
+function parseEntry(fileContent: string, filename: string): Entry {
+  const { data: frontmatter, content: body } = matter(fileContent);
 
   // Extract slug from filename (remove date prefix and .md suffix)
   const slug = filename.replace(/^\d{4}-\d{2}-\d{2}-/, '').replace(/\.md$/, '');
 
-  // Convert markdown body to HTML
-  const htmlContent = marked.parse(body.trim()) as string;
+  // Keep raw markdown for editing, render HTML for display
+  const rawContent = body.trim();
+  const htmlContent = marked.parse(rawContent) as string;
+
+  // Normalize date to YYYY-MM-DD format
+  const date = frontmatter.date ? normalizeDate(frontmatter.date) : '';
 
   return {
     ...frontmatter,
+    date,
     slug,
-    content: htmlContent,
+    content: rawContent,      // Raw markdown for editing
+    htmlContent,              // Rendered HTML for display
     images: frontmatter.images || [],
   } as Entry;
 }
@@ -75,11 +99,14 @@ function parseEntry(content: string, filename: string): Entry {
  * Serialize an Entry object to markdown
  */
 function serializeEntry(entry: Entry): string {
-  const { content, slug, ...frontmatter } = entry;
+  // Extract content (raw markdown) and exclude computed/internal fields
+  const { content, slug, htmlContent, ...frontmatter } = entry;
 
-  // Remove undefined values
+  // Remove undefined values and normalize date
   const cleanFrontmatter = Object.fromEntries(
-    Object.entries(frontmatter).filter(([, v]) => v !== undefined)
+    Object.entries(frontmatter)
+      .filter(([, v]) => v !== undefined)
+      .map(([k, v]) => [k, k === 'date' ? normalizeDate(v as string | Date) : v])
   );
 
   return matter.stringify(content, cleanFrontmatter);
@@ -278,5 +305,5 @@ export async function deleteEntry(
  * Get image URL for an entry
  */
 export function getImageUrl(entry: Entry, filename: string): string {
-  return `/images/${TYPE_DIRS[entry.type]}/${entry.slug}/${filename}`;
+  return `/api/images/${TYPE_DIRS[entry.type]}/${entry.slug}/${filename}`;
 }

@@ -100,7 +100,7 @@ export function ImageUploadSection({ entry }: ImageUploadSectionProps) {
   };
 
   const getImageUrl = (filename: string) => {
-    return `/images/${TYPE_DIRS[entry.type]}/${entry.slug}/${filename}`;
+    return `/api/images/${TYPE_DIRS[entry.type]}/${entry.slug}/${filename}`;
   };
 
   return (

@@ -22,6 +22,16 @@ const difficultyOptions = [
   { value: 'schwer', label: 'Schwer' },
 ];
 
+/**
+ * Normalize date to YYYY-MM-DD format for HTML date input
+ */
+function normalizeDate(date: string | Date | undefined): string {
+  if (!date) return new Date().toISOString().split('T')[0];
+  if (date instanceof Date) return date.toISOString().split('T')[0];
+  if (typeof date === 'string' && date.includes('T')) return date.split('T')[0];
+  return date;
+}
+
 export function EntryForm({ entry, mode }: EntryFormProps) {
   const [type, setType] = useState<EntryType>(entry?.type || 'restaurant');
   const [loading, setLoading] = useState(false);
@@ -30,7 +40,7 @@ export function EntryForm({ entry, mode }: EntryFormProps) {
   // Form state
   const [formData, setFormData] = useState({
     name: entry?.name || '',
-    date: entry?.date || new Date().toISOString().split('T')[0],
+    date: normalizeDate(entry?.date),
     status: entry?.status || 'draft',
     rating: entry?.rating || 3,
     content: entry?.content || '',
@@ -432,69 +442,59 @@ function RatingInput({ value, onChange }: { value: number; onChange: (v: number)
   const displayValue = hoverValue ?? value;
 
   return (
-    <div className="flex items-center gap-1" onMouseLeave={() => setHoverValue(null)}>
-      {[1, 2, 3, 4, 5].map((rating) => (
-        <div key={rating} className="relative h-6 w-6">
-          {/* Left half (for half rating) */}
-          <button
-            type="button"
-            className="absolute left-0 top-0 h-full w-1/2 cursor-pointer"
-            onMouseEnter={() => setHoverValue(rating - 0.5)}
-            onClick={() => handleClick(rating, true)}
-            aria-label={`${rating - 0.5} Giebel`}
-          />
-          {/* Right half (for full rating) */}
-          <button
-            type="button"
-            className="absolute right-0 top-0 h-full w-1/2 cursor-pointer"
-            onMouseEnter={() => setHoverValue(rating)}
-            onClick={() => handleClick(rating, false)}
-            aria-label={`${rating} Giebel`}
-          />
-          {/* Display */}
-          <GableIcon filled={displayValue >= rating} half={displayValue === rating - 0.5} />
-        </div>
-      ))}
+    <div className="flex flex-col gap-1">
+      <div className="flex items-center gap-1" onMouseLeave={() => setHoverValue(null)}>
+        {[1, 2, 3, 4, 5].map((rating) => (
+          <div key={rating} className="relative h-6 w-6">
+            {/* Left half (for half rating) */}
+            <button
+              type="button"
+              className="absolute left-0 top-0 h-full w-1/2 cursor-pointer z-10"
+              onMouseEnter={() => setHoverValue(rating - 0.5)}
+              onClick={() => handleClick(rating, true)}
+              aria-label={`${rating - 0.5} Giebel`}
+              title={`${rating - 0.5} Giebel`}
+            />
+            {/* Right half (for full rating) */}
+            <button
+              type="button"
+              className="absolute right-0 top-0 h-full w-1/2 cursor-pointer z-10"
+              onMouseEnter={() => setHoverValue(rating)}
+              onClick={() => handleClick(rating, false)}
+              aria-label={`${rating} Giebel`}
+              title={`${rating} Giebel`}
+            />
+            {/* Display */}
+            <GableIcon filled={displayValue >= rating} half={displayValue === rating - 0.5} />
+          </div>
+        ))}
+        {/* Show current/hover value */}
+        <span className="ml-2 min-w-[3rem] text-sm font-medium tabular-nums text-muted-foreground">
+          {displayValue.toFixed(1)}
+        </span>
+      </div>
     </div>
   );
 }
 
-// Gable icon for rating input
+// Gable icon for rating input - uses official SVG files
 function GableIcon({ filled, half }: { filled: boolean; half: boolean }) {
   if (half) {
     return (
-      <div className="relative h-6 w-6">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-          className="absolute inset-0 h-6 w-6 text-muted-foreground/30"
-        >
-          <path d="M12 2L4 10V22H20V10L12 2Z" />
-        </svg>
-        <div className="absolute inset-0 overflow-hidden" style={{ width: '50%' }}>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            className="h-6 w-6 text-primary"
-          >
-            <path d="M12 2L4 10V22H20V10L12 2Z" />
-          </svg>
-        </div>
-      </div>
+      <img
+        src="/gable_half.svg"
+        alt=""
+        className="h-6 w-auto drop-shadow-sm"
+      />
     );
   }
 
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      className={`h-6 w-6 ${filled ? 'text-primary' : 'text-muted-foreground/30'}`}
-    >
-      <path d="M12 2L4 10V22H20V10L12 2Z" />
-    </svg>
+    <img
+      src={filled ? '/gable.svg' : '/gable_empty.svg'}
+      alt=""
+      className={`h-6 w-auto ${filled ? 'drop-shadow-sm' : ''}`}
+    />
   );
 }
 

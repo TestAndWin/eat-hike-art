@@ -335,55 +335,66 @@ Admin (protected)
 ### Admin Dashboard (`/admin`)
 
 ```
+Desktop:
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │  Admin  │  Einträge  │  Zur Website →                    [Abmelden] │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                             │
-│     Dashboard                                                               │
-│     ═════════                                                               │
-│                                                                             │
-│  ┌───────────────────┐ ┌───────────────────┐ ┌───────────────────┐         │
-│  │                   │ │                   │ │                   │         │
-│  │   12              │ │    3              │ │    2              │         │
-│  │   Restaurants     │ │    Entwürfe       │ │    Inaktiv        │         │
-│  │                   │ │                   │ │                   │         │
-│  └───────────────────┘ └───────────────────┘ └───────────────────┘         │
-│                                                                             │
-│  ┌───────────────────┐ ┌───────────────────┐                               │
-│  │                   │ │                   │                               │
-│  │    8              │ │    5              │                               │
-│  │    Kunst          │ │    Touren         │                               │
-│  │                   │ │                   │                               │
-│  └───────────────────┘ └───────────────────┘                               │
-│                                                                             │
-│     ─────────────────────────────────────────                              │
-│                                                                             │
-│     Schnellzugriff                                                          │
-│                                                                             │
-│     ┌─────────────────────────────────────────────────────────────────┐    │
-│     │  + Neuer Eintrag (Spracheingabe)                                │    │
-│     └─────────────────────────────────────────────────────────────────┘    │
-│                                                                             │
-│     ┌─────────────────────────────────────────────────────────────────┐    │
-│     │  + Neuer Eintrag (manuell)                                      │    │
-│     └─────────────────────────────────────────────────────────────────┘    │
-│                                                                             │
-│     ─────────────────────────────────────────                              │
-│                                                                             │
-│     Letzte Entwürfe                                                         │
-│                                                                             │
-│     • Pizzeria Bella Italia (Restaurant) - vor 2 Stunden     [Bearbeiten]  │
-│     • Schiller-Ausstellung (Kunst) - vor 1 Tag               [Bearbeiten]  │
-│                                                                             │
+│ ┌──────────┐ ┌────────────────────────────────────────────────────────────┐ │
+│ │ Sidebar  │ │  Dashboard                           [Seite ansehen →]    │ │
+│ │          │ ├────────────────────────────────────────────────────────────┤ │
+│ │ Dashboard│ │                                                            │ │
+│ │ Einträge │ │  Quick Actions (Row 1)                                     │ │
+│ │ Neuer    │ │  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐       │ │
+│ │ Eintrag  │ │  │ Neuer        │ │ Spracheingabe│ │ Alle         │       │ │
+│ │ Sprach-  │ │  │ Eintrag      │ │              │ │ Einträge     │       │ │
+│ │ eingabe  │ │  └──────────────┘ └──────────────┘ └──────────────┘       │ │
+│ │          │ │                                                            │ │
+│ │ ──────── │ │  Statistics (Row 2)                                        │ │
+│ │ Abmelden │ │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐          │ │
+│ │          │ │  │ Gesamt  │ │Entwürfe │ │Restaur. │ │Kunst &  │          │ │
+│ │          │ │  │   3     │ │   0     │ │   1     │ │Touren 2 │          │ │
+│ │          │ │  └─────────┘ └─────────┘ └─────────┘ └─────────┘          │ │
+│ └──────────┘ └────────────────────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────────────────────────────┘
+
+Mobile:
+┌───────────────────────────────────┐
+│  ☰  Dashboard    [Seite ansehen]  │  ← Burger menu
+├───────────────────────────────────┤
+│                                   │
+│  ┌─────────────────────────────┐  │
+│  │ Neuer Eintrag erstellen     │  │
+│  └─────────────────────────────┘  │
+│  ┌─────────────────────────────┐  │
+│  │ Spracheingabe               │  │
+│  └─────────────────────────────┘  │
+│  ┌─────────────────────────────┐  │
+│  │ Alle Einträge               │  │
+│  └─────────────────────────────┘  │
+│                                   │
+│  ┌─────────┐ ┌─────────┐         │
+│  │ Gesamt  │ │Entwürfe │         │
+│  │   3     │ │   0     │         │
+│  └─────────┘ └─────────┘         │
+│  ...                              │
+└───────────────────────────────────┘
+
+Mobile Sidebar (when open):
+┌───────────────────────────────────┐
+│  Admin                        ✕   │  ← Close button
+├───────────────────────────────────┤
+│  Dashboard                        │
+│  Einträge                         │
+│  Neuer Eintrag                    │
+│  Spracheingabe                    │
+│  ─────────────────────────────    │
+│  Abmelden                         │
+└───────────────────────────────────┘
 ```
 
 **Components:**
-- Admin header with navigation
-- Stats cards (count per category, drafts, inactive)
-- Quick actions (new entry via voice/manual)
-- Recent drafts list
+- Sidebar navigation (hidden on mobile, toggle via burger menu)
+- Header with page title and "Seite ansehen" link
+- Quick actions row (primary actions)
+- Stats cards row (secondary info)
 
 ---
 
@@ -614,9 +625,24 @@ Admin (protected)
 
 | Breakpoint | Layout Changes |
 |------------|----------------|
-| Mobile (<640px) | Single column, stacked cards, hamburger menu |
-| Tablet (640-1024px) | 2-column grid for cards, sidebar navigation |
+| Mobile (<768px) | Single column, stacked cards, hamburger menu |
+| Tablet (768-1024px) | 2-column grid for cards, sidebar navigation |
 | Desktop (>1024px) | 3-column grid, full navigation |
+
+### Admin Layout (Mobile)
+
+The admin area uses a responsive sidebar pattern:
+
+| Viewport | Sidebar Behavior |
+|----------|------------------|
+| Desktop (≥768px) | Always visible, static position |
+| Mobile (<768px) | Hidden by default, slide-in overlay via burger menu |
+
+**Mobile interactions:**
+- Burger menu (☰) in header opens sidebar
+- Dark overlay (`bg-black/50`) appears behind sidebar
+- Close via: X button, overlay click, or nav link click
+- Body scroll is locked when sidebar is open
 
 ---
 

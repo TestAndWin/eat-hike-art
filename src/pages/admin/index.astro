@@ -41,7 +41,35 @@ const totalDrafts = stats.restaurants.drafts + stats.art.drafts + stats.tours.dr
 
 <AdminLayout title="Dashboard">
   <div class="space-y-6">
-    <!-- Overview cards -->
+    <!-- Quick actions -->
+    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <Card className="hover:border-primary/50 transition-colors">
+        <a href="/admin/entries/new" class="block p-6">
+          <CardHeader className="p-0 pb-2">
+            <CardTitle className="text-lg">Neuen Eintrag erstellen</CardTitle>
+            <CardDescription>Restaurant, Kunst oder Tour hinzufügen</CardDescription>
+          </CardHeader>
+        </a>
+      </Card>
+      <Card className="hover:border-primary/50 transition-colors">
+        <a href="/admin/voice" class="block p-6">
+          <CardHeader className="p-0 pb-2">
+            <CardTitle className="text-lg">Spracheingabe</CardTitle>
+            <CardDescription>Eintrag per Sprachaufnahme erstellen</CardDescription>
+          </CardHeader>
+        </a>
+      </Card>
+      <Card className="hover:border-primary/50 transition-colors">
+        <a href="/admin/entries" class="block p-6">
+          <CardHeader className="p-0 pb-2">
+            <CardTitle className="text-lg">Alle Einträge</CardTitle>
+            <CardDescription>Einträge verwalten und bearbeiten</CardDescription>
+          </CardHeader>
+        </a>
+      </Card>
+    </div>
+
+    <!-- Statistics -->
     <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <Card>
         <CardHeader className="pb-2">
@@ -76,34 +104,6 @@ const totalDrafts = stats.restaurants.drafts + stats.art.drafts + stats.tours.dr
             {stats.art.total} Kunst, {stats.tours.total} Touren
           </p>
         </CardContent>
-      </Card>
-    </div>
-
-    <!-- Quick actions -->
-    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      <Card className="hover:border-primary/50 transition-colors">
-        <a href="/admin/entries/new" class="block p-6">
-          <CardHeader className="p-0 pb-2">
-            <CardTitle className="text-lg">Neuen Eintrag erstellen</CardTitle>
-            <CardDescription>Restaurant, Kunst oder Tour hinzufügen</CardDescription>
-          </CardHeader>
-        </a>
-      </Card>
-      <Card className="hover:border-primary/50 transition-colors">
-        <a href="/admin/voice" class="block p-6">
-          <CardHeader className="p-0 pb-2">
-            <CardTitle className="text-lg">Spracheingabe</CardTitle>
-            <CardDescription>Eintrag per Sprachaufnahme erstellen</CardDescription>
-          </CardHeader>
-        </a>
-      </Card>
-      <Card className="hover:border-primary/50 transition-colors">
-        <a href="/admin/entries" class="block p-6">
-          <CardHeader className="p-0 pb-2">
-            <CardTitle className="text-lg">Alle Einträge</CardTitle>
-            <CardDescription>Einträge verwalten und bearbeiten</CardDescription>
-          </CardHeader>
-        </a>
       </Card>
     </div>
   </div>

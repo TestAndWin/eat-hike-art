@@ -22,14 +22,24 @@ const { title } = Astro.props;
   </head>
   <body class="min-h-screen bg-background font-sans antialiased">
     <div class="flex min-h-screen">
+      <!-- Mobile sidebar overlay -->
+      <div id="sidebar-overlay" class="fixed inset-0 z-40 bg-black/50 md:hidden hidden" aria-hidden="true"></div>
+
       <!-- Sidebar -->
-      <aside class="w-64 border-r bg-muted/30">
-        <div class="flex h-16 items-center border-b px-6">
+      <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 flex h-full w-64 -translate-x-full flex-col border-r bg-background transition-transform md:static md:translate-x-0">
+        <div class="flex h-16 items-center justify-between border-b px-6">
           <a href="/admin" class="text-lg font-semibold">
             Admin
           </a>
+          <!-- Close button (mobile only) -->
+          <button id="sidebar-close" class="rounded-md p-1 hover:bg-accent md:hidden" aria-label="Menü schließen">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 6 6 18" />
+              <path d="m6 6 12 12" />
+            </svg>
+          </button>
         </div>
-        <nav class="flex flex-col gap-1 p-4">
+        <nav class="flex flex-1 flex-col gap-1 p-4">
           <a
             href="/admin"
             class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
@@ -77,7 +87,7 @@ const { title } = Astro.props;
             Spracheingabe
           </a>
         </nav>
-        <div class="absolute bottom-0 left-0 w-64 border-t p-4">
+        <div class="mt-auto border-t p-4">
           <form action="/api/auth/logout" method="POST" id="logout-form">
             <button
               type="submit"
@@ -96,7 +106,15 @@ const { title } = Astro.props;
 
       <!-- Main content -->
       <div class="flex flex-1 flex-col">
-        <header class="flex h-16 items-center border-b px-6">
+        <header class="flex h-16 items-center gap-4 border-b px-4 md:px-6">
+          <!-- Burger menu (mobile only) -->
+          <button id="sidebar-toggle" class="rounded-md p-1 hover:bg-accent md:hidden" aria-label="Menü öffnen">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="4" x2="20" y1="12" y2="12" />
+              <line x1="4" x2="20" y1="6" y2="6" />
+              <line x1="4" x2="20" y1="18" y2="18" />
+            </svg>
+          </button>
           <h1 class="text-lg font-semibold">{title}</h1>
           <div class="ml-auto">
             <a href="/" target="_blank" class="text-sm text-muted-foreground hover:underline">
@@ -111,6 +129,37 @@ const { title } = Astro.props;
     </div>
 
     <script>
+      // Mobile sidebar toggle
+      const sidebar = document.getElementById('sidebar');
+      const sidebarOverlay = document.getElementById('sidebar-overlay');
+      const sidebarToggle = document.getElementById('sidebar-toggle');
+      const sidebarClose = document.getElementById('sidebar-close');
+
+      function openSidebar() {
+        sidebar?.classList.remove('-translate-x-full');
+        sidebarOverlay?.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden', 'md:overflow-auto');
+      }
+
+      function closeSidebar() {
+        sidebar?.classList.add('-translate-x-full');
+        sidebarOverlay?.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden', 'md:overflow-auto');
+      }
+
+      sidebarToggle?.addEventListener('click', openSidebar);
+      sidebarClose?.addEventListener('click', closeSidebar);
+      sidebarOverlay?.addEventListener('click', closeSidebar);
+
+      // Close sidebar when clicking a nav link (mobile)
+      sidebar?.querySelectorAll('nav a').forEach(link => {
+        link.addEventListener('click', () => {
+          if (window.innerWidth < 768) {
+            closeSidebar();
+          }
+        });
+      });
+
       // Handle logout form submission with fetch
       const logoutForm = document.getElementById('logout-form');
       logoutForm?.addEventListener('submit', async (e) => {

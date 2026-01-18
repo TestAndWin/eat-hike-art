@@ -3,7 +3,8 @@ import { requireAuth } from '@/lib/services/auth';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
 
-const IMAGES_DIR = import.meta.env.IMAGES_DIR || process.env.IMAGES_DIR || './public/images';
+const DATA_DIR = import.meta.env.DATA_DIR || process.env.DATA_DIR || '/var/www/data';
+const IMAGES_DIR = path.join(DATA_DIR, 'images');
 
 // Map entry types to directory names
 const TYPE_DIRS: Record<string, string> = {
@@ -81,8 +82,8 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     const buffer = Buffer.from(await file.arrayBuffer());
     await writeFile(filePath, buffer);
 
-    // Return the URL path
-    const url = `/images/${TYPE_DIRS[type]}/${slug}/${filename}`;
+    // Return the URL path (served via API endpoint)
+    const url = `/api/images/${TYPE_DIRS[type]}/${slug}/${filename}`;
 
     return new Response(
       JSON.stringify({ filename, url }),

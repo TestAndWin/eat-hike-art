@@ -7,7 +7,8 @@ export interface BaseEntry {
   status: 'draft' | 'active' | 'inactive';
   date: string;
   images: string[];
-  content: string;
+  content: string;      // Raw markdown content (for editing)
+  htmlContent?: string; // Rendered HTML (for display, not stored)
 }
 
 // Restaurant-specific

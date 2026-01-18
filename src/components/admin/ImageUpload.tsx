@@ -66,7 +66,7 @@ export function ImageUpload({ type, slug, images, onImagesChange }: ImageUploadP
   };
 
   const getImageUrl = (filename: string) => {
-    return `/images/${TYPE_DIRS[type]}/${slug}/${filename}`;
+    return `/api/images/${TYPE_DIRS[type]}/${slug}/${filename}`;
   };
 
   return (

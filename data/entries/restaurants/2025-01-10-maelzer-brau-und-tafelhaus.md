@@ -1,20 +1,20 @@
 ---
 type: restaurant
-name: "Mälzer Brau- und Tafelhaus"
+name: Mälzer Brau- und Tafelhaus
 rating: 4.5
-cuisine: "deutsch"
+cuisine: deutsch
 ratings:
   service: 4
   food: 5
   ambiance: 4.5
   value: 4
-address: "Heiligengeiststraße 39, 21335 Lüneburg"
-link: "https://www.maelzer-lueneburg.de"
+address: 'Heiligengeiststraße 39, 21335 Lüneburg'
+link: 'https://www.maelzer-lueneburg.ded'
 status: active
-date: 2025-01-10
-images: []
+date: '2025-01-10'
+images:
+  - 1768737423915.jpg
 ---
-
 Das Mälzer in der Lüneburger Altstadt ist eine echte Institution. Die hausgebrauten Biere sind hervorragend, besonders das dunkle Mälzer-Bräu hat es uns angetan.
 
 ## Essen

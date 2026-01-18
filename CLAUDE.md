@@ -318,8 +318,8 @@ Install from: https://github.com/anthropics/claude-code/tree/main/plugins
 
 ### Phase 7: Testing and Editing Features
 - [ ] Testing Desktop and mobile viewport
-- [ ] Image upload
 - [ ] SEO check, title, meta description, ... correct
+- [ ] sitemap-index.xml
  
 ### Phase 8: Voice-to-Publish
 - [ ] Voice recorder component
