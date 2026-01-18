@@ -319,79 +319,16 @@ PORT=4321
 
 ---
 
-## Hosting Setup
-
-### Server Requirements
-
-- Linux (Ubuntu/Debian recommended)
-- Node.js 20+
-- Nginx or Caddy (reverse proxy)
-- ~1 GB disk space (grows ~125 MB/year)
-
-### Deployment
-
-```bash
-# Clone and install
-git clone <repo> /var/www/eat-hike-art
-cd /var/www/eat-hike-art
-npm install
-
-# Build
-npm run build
-
-# Run with PM2
-pm2 start npm --name "eat-hike-art" -- run start
-pm2 save
-```
-
-### Nginx Config
-
-```nginx
-server {
-    listen 80;
-    server_name eat-hike-art.de;
-    return 301 https://$server_name$request_uri;
-}
-
-server {
-    listen 443 ssl http2;
-    server_name eat-hike-art.de;
-
-    ssl_certificate /etc/letsencrypt/live/eat-hike-art.de/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/eat-hike-art.de/privkey.pem;
-
-    # Static images from data directory
-    location /images/ {
-        alias /var/www/data/images/;
-        expires 30d;
-        add_header Cache-Control "public, immutable";
-    }
-
-    # Astro application
-    location / {
-        proxy_pass http://localhost:4321;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_cache_bypass $http_upgrade;
-    }
-}
-```
-
----
-
 ## Design System
 
 ### Typography
 
 | Role | Font | Usage |
 |------|------|-------|
-| Headlines | Playfair Display | h1, h2, h3, Kategorie-Titel |
-| Body | DM Sans | Fließtext, Buttons, Navigation |
+| Headlines | Playfair Display | h1, h2, h3, Category titles |
+| Body | DM Sans | Body text, Buttons, Navigation |
 
-Fonts werden via Google Fonts geladen (Import in `src/styles/globals.css`).
+Fonts are loaded via Google Fonts (imported in `src/styles/globals.css`).
 
 ### Color Palette (Painting-Inspired)
 
@@ -440,43 +377,32 @@ Each content category has an assigned accent color from the painting:
 | `slide-in` | opacity + translateX | Navigation items |
 | `scale-in` | opacity + scale 0.95→1 | Modal/Dialog entry |
 
-**Timing Function:** `ease-out-expo` (cubic-bezier(0.16, 1, 0.3, 1)) für elegante Übergänge.
+**Timing Function:** `ease-out-expo` (cubic-bezier(0.16, 1, 0.3, 1)) for elegant transitions.
 
-**Grain Overlay:** Verwendet SVG noise filter mit `mix-blend-mode: multiply` für organisches, print-artiges Gefühl.
+**Grain Overlay:** Uses SVG noise filter with `mix-blend-mode: multiply` for organic, print-like feel.
 
 ---
 
 ## Tailwind Gotchas
 
-### Dynamische Klassen vermeiden
+### Avoid Dynamic Classes
 
-Tailwind generiert nur Klassen, die als **vollständige Strings** im Quellcode vorkommen. Dynamische Interpolation funktioniert nicht:
+Tailwind only generates classes that appear as **complete strings** in the source code. Dynamic interpolation does not work:
 
 ```javascript
-// FALSCH - Tailwind erkennt diese Klassen nicht
+// WRONG - Tailwind won't recognize these classes
 const color = 'terracotta';
-<div class={`bg-${color}/10`}>      // wird nicht generiert
-<div class={`text-${color}`}>       // wird nicht generiert
+<div class={`bg-${color}/10`}>      // won't be generated
+<div class={`text-${color}`}>       // won't be generated
 
-// RICHTIG - vollständige Klassennamen als Strings
+// CORRECT - complete class names as strings
 const category = {
   bgClass: 'bg-terracotta/10',
   textClass: 'text-terracotta',
 };
-<div class={category.bgClass}>      // funktioniert
-<div class={category.textClass}>    // funktioniert
+<div class={category.bgClass}>      // works
+<div class={category.textClass}>    // works
 ```
 
-**Alternative:** Klassen in `tailwind.config.mjs` unter `safelist` hinzufügen (nicht empfohlen für viele Klassen).
+**Alternative:** Add classes to `safelist` in `tailwind.config.mjs` (not recommended for many classes).
 
----
-
-## Annual Costs
-
-| Item | Cost |
-|------|------|
-| Domain | ~€10 |
-| Server (existing) | €0 |
-| Whisper API | ~$0.90 |
-| Claude API | ~$0.25 |
-| **Total** | **~€12/year** |

@@ -3,6 +3,10 @@ import path from 'path';
 import * as argon2 from 'argon2';
 import type { AstroCookies } from 'astro';
 import type { Session } from '@/lib/types';
+import { config as dotenvConfig } from 'dotenv';
+
+// Load .env file directly with dotenv (bypasses Vite's variable expansion)
+dotenvConfig();
 
 const DATA_DIR = import.meta.env.DATA_DIR || process.env.DATA_DIR || '/var/www/data';
 const SESSIONS_DIR = path.join(DATA_DIR, 'sessions');
@@ -109,7 +113,8 @@ export async function requireAuth(cookies: AstroCookies): Promise<boolean> {
 
 /**
  * Get the admin password hash from environment
+ * Uses process.env directly to avoid Vite's variable expansion issues with $ characters
  */
 export function getPasswordHash(): string {
-  return import.meta.env.ADMIN_PASSWORD_HASH || process.env.ADMIN_PASSWORD_HASH || '';
+  return process.env.ADMIN_PASSWORD_HASH || '';
 }

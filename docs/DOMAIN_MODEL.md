@@ -123,7 +123,7 @@ Additional fields for hiking/city tour reviews:
 ```markdown
 ---
 type: restaurant
-name: "Mälzer Brau- und Tafelhaus"
+name: "Brau- und Tafelhaus"
 rating: 4.5
 cuisine: "deutsch"
 ratings:
@@ -131,8 +131,8 @@ ratings:
   food: 5
   ambiance: 4.5
   value: 4
-address: "Heiligengeiststraße 39, 21335 Lüneburg"
-link: "https://www.maelzer-lueneburg.de"
+address: "ABC Straße 39, 21335 Lüneburg"
+link: "https://www.brau-lueneburg.de"
 status: active
 date: 2025-01-04
 images:
@@ -141,8 +141,7 @@ images:
   - innenraum.jpg
 ---
 
-Das Mälzer in der Lüneburger Altstadt ist eine Institution. Die hausgebrauten
-Biere sind hervorragend, besonders das dunkle Mälzer-Bräu.
+TEXT
 
 ## Essen
 
@@ -286,6 +285,54 @@ function getImageUrl(entry: Entry, filename: string): string {
 }
 // → /images/restaurants/maelzer-brauhaus/hero.jpg
 ```
+
+---
+
+## Data Directory Structure
+
+The complete file system layout depends on the environment:
+
+### Development
+
+Configured via `DATA_DIR` environment variable (default: `/var/www/data`):
+
+```
+/var/www/data/
+├── entries/
+│   ├── restaurants/     # Restaurant reviews (*.md files)
+│   ├── art/            # Art exhibition reviews (*.md files)
+│   └── tours/          # Tour reviews (*.md files)
+├── images/
+│   ├── restaurants/
+│   │   └── {slug}/     # Images for specific restaurant
+│   ├── art/
+│   │   └── {slug}/
+│   └── tours/
+│       └── {slug}/
+└── sessions/           # Login sessions (*.json files, auto-managed)
+```
+
+### Production (Kubernetes)
+
+Host path `/srv/fuenfgiebel/data` is mounted to `/var/www/data` in container:
+
+```
+/srv/fuenfgiebel/data/  (host)  →  /var/www/data (container)
+├── entries/
+│   ├── restaurants/     # Restaurant reviews (*.md files)
+│   ├── art/            # Art exhibition reviews (*.md files)
+│   └── tours/          # Tour reviews (*.md files)
+├── images/
+│   ├── restaurants/
+│   │   └── {slug}/     # Images for specific restaurant
+│   ├── art/
+│   │   └── {slug}/
+│   └── tours/
+│       └── {slug}/
+└── sessions/           # Login sessions (*.json files, auto-managed)
+```
+
+**Important:** Directory must be owned by UID/GID 1001:1001 (container user). See `docs/TECH_STACK.md` for setup instructions.
 
 ---
 

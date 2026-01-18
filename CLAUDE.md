@@ -314,16 +314,21 @@ Install from: https://github.com/anthropics/claude-code/tree/main/plugins
 - [x] Dockerfile (multi-stage build, Node 22 Alpine)
 - [x] Kubernetes manifests (namespace, configmap, secret, pvc, deployment, service, ingress)
 - [x] deploy.sh helper script for minikube
-- [ ] Semantic versioning
-- [ ] https
+- [x] HTTPS with Let's Encrypt (cert-manager)
 
-### Phase 7: Voice-to-Publish
+### Phase 7: Testing and Editing Features
+- [ ] Testing Desktop and mobile viewport
+- [ ] Image upload
+- [ ] SEO check, title, meta description, ... correct
+ 
+### Phase 8: Voice-to-Publish
 - [ ] Voice recorder component
 - [ ] Whisper API integration
 - [ ] Claude API integration
 - [ ] Draft preview and editing
 
-### Phase 8: Finalize
+### Phase 9:  
+- [ ] PersistentVolumeClaim einzurichten statt hostPath zu verwenden. Das ist robuster und Kubernetes-nativer. Möchtest du das?                                                                         
 - [ ] Backup script
-- [ ] README.md 
+- [ ] README.md
 
