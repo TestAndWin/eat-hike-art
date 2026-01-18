@@ -316,10 +316,11 @@ Install from: https://github.com/anthropics/claude-code/tree/main/plugins
 - [x] deploy.sh helper script for minikube
 - [x] HTTPS with Let's Encrypt (cert-manager)
 
-### Phase 7: Testing and Editing Features
-- [ ] Testing Desktop and mobile viewport
-- [ ] SEO check, title, meta description, ... correct
-- [ ] sitemap-index.xml
+### Phase 7: Testing and Editing Features ✅
+- [x] Testing Desktop and mobile viewport
+- [x] SEO check, title, meta description, ... correct
+- [x] Check sitemap-index.xml
+- [x] README.md
  
 ### Phase 8: Voice-to-Publish
 - [ ] Voice recorder component
@@ -328,7 +329,6 @@ Install from: https://github.com/anthropics/claude-code/tree/main/plugins
 - [ ] Draft preview and editing
 
 ### Phase 9:  
-- [ ] PersistentVolumeClaim einzurichten statt hostPath zu verwenden. Das ist robuster und Kubernetes-nativer. Möchtest du das?                                                                         
 - [ ] Backup script
-- [ ] README.md
+- [ ] How to register page at Google for indexing
 
