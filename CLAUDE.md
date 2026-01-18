@@ -345,5 +345,6 @@ Install from: https://github.com/anthropics/claude-code/tree/main/plugins
 
 ### Phase 9:  
 - [ ] Backup script
-- [ ] How to register page at Google for indexing
-- [ ] Server_setup.md updaten. kubectl Beispiele in einer Sektion, DRY.
+- [ ] Register page at Google for indexing. See SERVER_SETUP.md
+- [ ] Adapt Claude.MD to next phase, maintenance and updates?
+- [ ] Log traffic on server side

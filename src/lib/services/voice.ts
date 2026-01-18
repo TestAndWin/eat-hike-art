@@ -20,7 +20,8 @@ export async function transcribeAudio(
   const openai = new OpenAI({ apiKey });
 
   // Convert buffer to File object for the API
-  const blob = new Blob([buffer], { type: mimeType });
+  const uint8Array = new Uint8Array(buffer);
+  const blob = new Blob([uint8Array], { type: mimeType });
   const file = new File([blob], 'audio.webm', { type: mimeType });
 
   const response = await openai.audio.transcriptions.create({

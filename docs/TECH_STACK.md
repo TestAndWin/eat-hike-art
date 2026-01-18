@@ -83,6 +83,83 @@
 
 ---
 
+## Voice-to-Publish Flow
+
+The voice recording workflow uses a two-step process with human review between transcription and entry generation:
+
+```
+Browser                      Server                        External APIs
+───────                      ──────                        ─────────────
+
+1. RECORD
+   ┌─────────────┐
+   │ MediaRecorder│
+   │ (WebM audio)│
+   └──────┬──────┘
+          │
+2. TRANSCRIBE
+          │
+          ▼
+   POST /api/voice/transcribe ─────────────────────────▶ OpenAI Whisper
+   [audio blob]                                          (speech-to-text)
+                                                                │
+          ◀─────────────────────────────────────────────────────┘
+   { transcript: "Das Restaurant..." }
+          │
+3. REVIEW (Human-in-the-loop)
+          │
+   ┌──────▼──────┐
+   │  User views │
+   │  transcript │
+   │  ✓ or redo  │
+   └──────┬──────┘
+          │
+4. GENERATE
+          │
+          ▼
+   POST /api/voice/generate ───────────────────────────▶ Anthropic Claude
+   { transcript, category }                              (text-to-JSON)
+                                                                │
+          ◀─────────────────────────────────────────────────────┘
+   { entry: { name, rating, cuisine, ... } }
+          │
+5. SAVE
+          │
+          ▼
+   createEntry() ──────────────────▶ /var/www/data/entries/
+                                     [markdown file as DRAFT]
+          │
+6. EDIT & PUBLISH
+          │
+          ▼
+   Redirect to /admin/entries/[type]/[slug]
+   (User reviews, edits, sets status to ACTIVE)
+```
+
+**Important:** Audio is never persisted on the server. It exists only in memory during the transcription request.
+
+### Claude Prompts
+
+The system prompts for converting transcripts to structured entries are defined in:
+
+**File:** `src/lib/services/voice.ts` → `getSystemPrompt(category)`
+
+Each category has a specific prompt that instructs Claude which fields to extract:
+
+| Category | Extracted Fields |
+|----------|------------------|
+| Restaurant | name, cuisine, rating, ratings (service/food/ambiance/value), address, content |
+| Art | name, museum, rating, exhibition_start, exhibition_end, content |
+| Tour | name, rating, distance_km, duration, difficulty, content |
+
+All prompts instruct Claude to:
+- Output only valid JSON (no markdown formatting)
+- Use German language for content
+- Use ratings on a 1-5 scale (0.5 increments allowed)
+- Set today's date automatically
+
+---
+
 ## Dependencies
 
 ### Production
