@@ -5,6 +5,4 @@
 - [x] Why is the content of the md with html code, and not plain mark down?
 - [x] Wie kann ich halbe Sterne in der Bewertung eintragen?
 - [x] Burgermenu im mobile view
-
-Improvements
-
+- [x] https://www.fuenfgiebel.de/admin/entries fehlt ein Trenner bei den Küchen. Die Begriffe stehen derzeit direkt aneinander
