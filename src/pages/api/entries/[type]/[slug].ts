@@ -52,6 +52,7 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
     if (body.content !== undefined) updates.content = body.content;
     if (body.images !== undefined) updates.images = body.images;
     if (body.link !== undefined) updates.link = body.link;
+    if (body.seo_description !== undefined) (updates as Record<string, unknown>).seo_description = body.seo_description;
 
     // Type-specific fields
     if (type === 'restaurant') {

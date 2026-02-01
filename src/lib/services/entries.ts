@@ -198,7 +198,22 @@ export async function getLeaderboard(
     );
   }
 
-  return entries.sort((a, b) => b.rating - a.rating);
+  return entries.sort((a, b) => {
+    // Primary: overall rating
+    const ratingDiff = b.rating - a.rating;
+    if (ratingDiff !== 0) return ratingDiff;
+
+    // Secondary: sum of sub-ratings for restaurants
+    if (a.type === 'restaurant' && b.type === 'restaurant') {
+      const sumRatings = (r: RestaurantEntry['ratings']) =>
+        r.service + r.food + r.ambiance + r.value;
+      const subDiff = sumRatings(b.ratings) - sumRatings(a.ratings);
+      if (subDiff !== 0) return subDiff;
+    }
+
+    // Tertiary: newer entries first
+    return new Date(b.date).getTime() - new Date(a.date).getTime();
+  });
 }
 
 /**

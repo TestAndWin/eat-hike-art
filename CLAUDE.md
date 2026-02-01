@@ -351,6 +351,8 @@ Install from: https://github.com/anthropics/claude-code/tree/main/plugins
 - [x] Bilder für Web anpassen, derzeit brauchen sie zu viel Speicher.
 - [x] Möglichkeit, dass man Bilder zuschneiden kann
 - [x] Reihenfolge der Bilder anpassbar
+- [x] Die Reihenfolge der Bestenliste soll alle Bewertungen berücksichtigt werden, nicht nur die Gesamtwertung
+- [x] SEO Description editierbar machen
 - [ ] für inaktive Einträge Vorschau anbieten
 - [ ] Neuen Eintrag Dialog, dort für die Beschreibung auch die Spracheingabe erlauben.
 

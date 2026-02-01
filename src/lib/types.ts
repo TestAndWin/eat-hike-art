@@ -9,6 +9,7 @@ export interface BaseEntry {
   images: string[];
   content: string;      // Raw markdown content (for editing)
   htmlContent?: string; // Rendered HTML (for display, not stored)
+  seo_description?: string; // Custom SEO meta description (optional, auto-generated if empty)
 }
 
 // Restaurant-specific

@@ -41,7 +41,7 @@ const details = [
   entry.duration,
   entry.difficulty && difficultyLabels[entry.difficulty],
 ].filter(Boolean).join(', ');
-const seoDescription = `${entry.name} - Tour mit ${entry.rating} Giebeln bewertet.${details ? ` ${details}.` : ''}`;
+const seoDescription = entry.seo_description || `${entry.name} - Tour mit ${entry.rating} Giebeln bewertet.${details ? ` ${details}.` : ''}`;
 ---
 
 <BaseLayout

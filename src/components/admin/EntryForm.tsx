@@ -73,6 +73,7 @@ export function EntryForm({ entry, mode }: EntryFormProps) {
     difficulty: (entry as TourEntry)?.difficulty || '',
     // Common
     link: entry?.link || '',
+    seo_description: entry?.seo_description || '',
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -89,6 +90,7 @@ export function EntryForm({ entry, mode }: EntryFormProps) {
         rating: formData.rating,
         content: formData.content,
         link: formData.link || undefined,
+        seo_description: formData.seo_description || undefined,
       };
 
       // Add type-specific fields
@@ -145,6 +147,13 @@ export function EntryForm({ entry, mode }: EntryFormProps) {
       }));
     }
   };
+
+  const difficultyLabels: Record<string, string> = { leicht: 'Leicht', mittel: 'Mittel', schwer: 'Schwer' };
+  const autoSeoDescription = type === 'restaurant'
+    ? `${formData.name || 'Name'} - Küche: ${formData.cuisine.length ? formData.cuisine.join(', ') : '...'} - Restaurant mit ${formData.rating} Giebeln bewertet. ${formData.address || ''}`.trim()
+    : type === 'art'
+    ? `${formData.name || 'Name'} im ${formData.museum || '...'} - Ausstellung mit ${formData.rating} Giebeln bewertet.`
+    : `${formData.name || 'Name'} - Tour mit ${formData.rating} Giebeln bewertet.${[formData.distance_km && `${formData.distance_km} km`, formData.duration, formData.difficulty && difficultyLabels[formData.difficulty]].filter(Boolean).join(', ') || ''}`;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
@@ -470,6 +479,24 @@ export function EntryForm({ entry, mode }: EntryFormProps) {
           className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-primary"
           placeholder="Deine Bewertung und Erfahrungen..."
         />
+      </div>
+
+      {/* SEO Description */}
+      <div className="space-y-2">
+        <label htmlFor="seo_description" className="text-sm font-medium">
+          SEO Beschreibung <span className="text-muted-foreground font-normal">(optional)</span>
+        </label>
+        <textarea
+          id="seo_description"
+          rows={2}
+          value={formData.seo_description}
+          onChange={(e) => setFormData((prev) => ({ ...prev, seo_description: e.target.value }))}
+          className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-primary"
+          placeholder={autoSeoDescription}
+        />
+        {!formData.seo_description && (
+          <p className="text-xs text-muted-foreground">Leer lassen für automatische Generierung.</p>
+        )}
       </div>
 
       {/* Submit buttons */}

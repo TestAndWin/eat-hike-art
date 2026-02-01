@@ -89,6 +89,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       content: body.content || '',
       images: body.images || [],
       link: body.link,
+      seo_description: body.seo_description,
     } as Omit<Entry, 'slug'>;
 
     // Add type-specific fields

@@ -31,7 +31,7 @@ const ratingLabels = {
 const ogImage = entry.images?.[0]
   ? `/api/images/restaurants/${entry.slug}/${entry.images[0]}`
   : undefined;
-const seoDescription = `${entry.name} - ${entry.cuisine.join(', ')} Restaurant mit ${entry.rating} Giebeln bewertet. ${entry.address || ''}`.trim();
+const seoDescription = entry.seo_description || `${entry.name} - Küche: ${entry.cuisine.join(', ')} - Restaurant mit ${entry.rating} Giebeln bewertet. ${entry.address || ''}`.trim();
 ---
 
 <BaseLayout

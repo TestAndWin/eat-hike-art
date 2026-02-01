@@ -33,7 +33,7 @@ if (entry.exhibition_start && entry.exhibition_end) {
 const ogImage = entry.images?.[0]
   ? `/api/images/kunst/${entry.slug}/${entry.images[0]}`
   : undefined;
-const seoDescription = `${entry.name} im ${entry.museum} - Ausstellung mit ${entry.rating} Giebeln bewertet.${exhibitionPeriod ? ` ${exhibitionPeriod}.` : ''}`;
+const seoDescription = entry.seo_description || `${entry.name} im ${entry.museum} - Ausstellung mit ${entry.rating} Giebeln bewertet.${exhibitionPeriod ? ` ${exhibitionPeriod}.` : ''}`;
 ---
 
 <BaseLayout
