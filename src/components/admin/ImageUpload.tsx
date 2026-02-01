@@ -1,4 +1,5 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { CropDialog } from './CropDialog';
 
 interface ImageUploadProps {
   type: 'restaurant' | 'art' | 'tour';
@@ -18,46 +19,140 @@ export function ImageUpload({ type, slug, images, onImagesChange }: ImageUploadP
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Crop dialog state
+  const [cropQueue, setCropQueue] = useState<File[]>([]);
+  const [currentCropSrc, setCurrentCropSrc] = useState<string | null>(null);
+  const [currentCropFile, setCurrentCropFile] = useState<File | null>(null);
+  const [uploadedFilenames, setUploadedFilenames] = useState<string[]>([]);
+
+  // Upload a single file (original or cropped blob)
+  const uploadFile = async (file: File | Blob, filename: string): Promise<string> => {
+    const formData = new FormData();
+    formData.append('file', file, filename);
+    formData.append('type', type);
+    formData.append('slug', slug);
+
+    const response = await fetch('/api/images/upload', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.error || 'Upload fehlgeschlagen');
+    }
+
+    const { filename: uploadedFilename } = await response.json();
+    return uploadedFilename;
+  };
+
+  // Show next file from queue
+  const showNextFile = (queue: File[]) => {
+    if (queue.length === 0) {
+      setCurrentCropFile(null);
+      setCurrentCropSrc(null);
+      return;
+    }
+
+    const [nextFile, ...remaining] = queue;
+    setCropQueue(remaining);
+    setCurrentCropFile(nextFile);
+    setCurrentCropSrc(URL.createObjectURL(nextFile));
+  };
+
+  // When queue becomes empty and we have uploads, notify parent
+  useEffect(() => {
+    if (uploading && !currentCropFile && cropQueue.length === 0 && uploadedFilenames.length > 0) {
+      // All files processed
+      onImagesChange([...images, ...uploadedFilenames]);
+      setUploadedFilenames([]);
+      setUploading(false);
+    } else if (uploading && !currentCropFile && cropQueue.length === 0 && uploadedFilenames.length === 0) {
+      // No files were uploaded (all cancelled)
+      setUploading(false);
+    }
+  }, [uploading, currentCropFile, cropQueue.length, uploadedFilenames.length]);
+
+  // Handle crop complete - upload cropped image
+  const handleCropComplete = async (blob: Blob, filename: string) => {
+    const src = currentCropSrc;
+    const remainingQueue = cropQueue;
+
+    try {
+      const uploadedFilename = await uploadFile(blob, filename);
+      setUploadedFilenames(prev => [...prev, uploadedFilename]);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Upload fehlgeschlagen');
+    }
+
+    // Clean up object URL AFTER upload
+    if (src) {
+      URL.revokeObjectURL(src);
+    }
+    setCurrentCropSrc(null);
+    setCurrentCropFile(null);
+
+    // Show next file
+    showNextFile(remainingQueue);
+  };
+
+  // Handle skip - upload original file without cropping
+  const handleSkipCrop = async () => {
+    if (!currentCropFile) return;
+
+    const file = currentCropFile;
+    const src = currentCropSrc;
+    const remainingQueue = cropQueue;
+
+    try {
+      const uploadedFilename = await uploadFile(file, file.name);
+      setUploadedFilenames(prev => [...prev, uploadedFilename]);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Upload fehlgeschlagen');
+    }
+
+    // Clean up object URL AFTER upload
+    if (src) {
+      URL.revokeObjectURL(src);
+    }
+    setCurrentCropSrc(null);
+    setCurrentCropFile(null);
+
+    // Show next file
+    showNextFile(remainingQueue);
+  };
+
+  // Handle cancel - skip this file entirely
+  const handleCancelCrop = () => {
+    // Clean up object URL
+    if (currentCropSrc) {
+      URL.revokeObjectURL(currentCropSrc);
+    }
+    setCurrentCropSrc(null);
+    setCurrentCropFile(null);
+
+    // Show next file
+    showNextFile(cropQueue);
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    setUploading(true);
+    // IMPORTANT: Convert to array BEFORE resetting input, as resetting clears the FileList
+    const fileArray = Array.from(files);
+
     setError(null);
+    setUploading(true);
+    setUploadedFilenames([]);
 
-    try {
-      const newImages: string[] = [];
-
-      for (const file of Array.from(files)) {
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('type', type);
-        formData.append('slug', slug);
-
-        const response = await fetch('/api/images/upload', {
-          method: 'POST',
-          body: formData,
-        });
-
-        if (!response.ok) {
-          const data = await response.json();
-          throw new Error(data.error || 'Upload fehlgeschlagen');
-        }
-
-        const { filename } = await response.json();
-        newImages.push(filename);
-      }
-
-      onImagesChange([...images, ...newImages]);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Ein Fehler ist aufgetreten');
-    } finally {
-      setUploading(false);
-      // Reset file input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
+    // Reset file input (so same file can be selected again)
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
+
+    // Start processing the queue
+    showNextFile(fileArray);
   };
 
   const handleRemove = (index: number) => {
@@ -144,7 +239,19 @@ export function ImageUpload({ type, slug, images, onImagesChange }: ImageUploadP
 
       <p className="text-xs text-muted-foreground">
         Erlaubte Formate: JPEG, PNG, WebP, GIF. Maximale Größe: 10MB pro Bild.
+        Bilder werden automatisch optimiert.
       </p>
+
+      {/* Crop Dialog */}
+      {currentCropSrc && currentCropFile && (
+        <CropDialog
+          imageSrc={currentCropSrc}
+          originalFilename={currentCropFile.name}
+          onCropComplete={handleCropComplete}
+          onSkip={handleSkipCrop}
+          onCancel={handleCancelCrop}
+        />
+      )}
     </div>
   );
 }

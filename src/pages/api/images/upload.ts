@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { requireAuth } from '@/lib/services/auth';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
+import { optimizeImage } from '@/lib/services/images';
 
 const DATA_DIR = import.meta.env.DATA_DIR || process.env.DATA_DIR || '/var/www/data';
 const IMAGES_DIR = path.join(DATA_DIR, 'images');
@@ -68,8 +69,17 @@ export const POST: APIRoute = async ({ request, cookies }) => {
       );
     }
 
+    // Get original buffer
+    const originalBuffer = Buffer.from(await file.arrayBuffer());
+
+    // Optimize image (returns null for GIFs to preserve animation)
+    const optimized = await optimizeImage(originalBuffer, file.type);
+
+    // Use optimized version or original (for GIFs)
+    const finalBuffer = optimized?.buffer ?? originalBuffer;
+    const extension = optimized?.extension ?? file.name.split('.').pop()?.toLowerCase() ?? 'gif';
+
     // Generate filename
-    const extension = file.name.split('.').pop()?.toLowerCase() || 'jpg';
     const timestamp = Date.now();
     const filename = `${timestamp}.${extension}`;
 
@@ -79,8 +89,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
     // Write file
     const filePath = path.join(dirPath, filename);
-    const buffer = Buffer.from(await file.arrayBuffer());
-    await writeFile(filePath, buffer);
+    await writeFile(filePath, finalBuffer);
 
     // Return the URL path (served via API endpoint)
     const url = `/api/images/${TYPE_DIRS[type]}/${slug}/${filename}`;
