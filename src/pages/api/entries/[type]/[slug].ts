@@ -56,6 +56,7 @@ export const PUT: APIRoute = async ({ params, request, cookies }) => {
     // Type-specific fields
     if (type === 'restaurant') {
       if (body.cuisine !== undefined) (updates as Record<string, unknown>).cuisine = body.cuisine;
+      if (body.price_range !== undefined) (updates as Record<string, unknown>).price_range = body.price_range;
       if (body.ratings !== undefined) (updates as Record<string, unknown>).ratings = body.ratings;
       if (body.address !== undefined) (updates as Record<string, unknown>).address = body.address;
     } else if (type === 'art') {

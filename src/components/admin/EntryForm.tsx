@@ -22,6 +22,14 @@ const difficultyOptions = [
   { value: 'schwer', label: 'Schwer' },
 ];
 
+const priceRangeOptions = [
+  { value: '', label: 'Keine Angabe' },
+  { value: '€', label: '€ — Günstig' },
+  { value: '€€', label: '€€ — Mittel' },
+  { value: '€€€', label: '€€€ — Gehoben' },
+  { value: '€€€€', label: '€€€€ — Luxus' },
+];
+
 /**
  * Normalize date to YYYY-MM-DD format for HTML date input
  */
@@ -36,6 +44,7 @@ export function EntryForm({ entry, mode }: EntryFormProps) {
   const [type, setType] = useState<EntryType>(entry?.type || 'restaurant');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [cuisineInput, setCuisineInput] = useState('');
 
   // Form state
   const [formData, setFormData] = useState({
@@ -45,7 +54,8 @@ export function EntryForm({ entry, mode }: EntryFormProps) {
     rating: entry?.rating || 3,
     content: entry?.content || '',
     // Restaurant specific
-    cuisine: (entry as RestaurantEntry)?.cuisine || '',
+    cuisine: (entry as RestaurantEntry)?.cuisine || [],
+    price_range: (entry as RestaurantEntry)?.price_range || '',
     address: (entry as RestaurantEntry)?.address || '',
     ratings: (entry as RestaurantEntry)?.ratings || {
       service: 3,
@@ -84,6 +94,7 @@ export function EntryForm({ entry, mode }: EntryFormProps) {
       // Add type-specific fields
       if (type === 'restaurant') {
         payload.cuisine = formData.cuisine;
+        payload.price_range = formData.price_range || undefined;
         payload.address = formData.address || undefined;
         payload.ratings = formData.ratings;
       } else if (type === 'art') {
@@ -178,7 +189,7 @@ export function EntryForm({ entry, mode }: EntryFormProps) {
             required
             value={formData.name}
             onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
-            className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-primary"
             placeholder={type === 'restaurant' ? 'z.B. Mälzer Brau- und Tafelhaus' : type === 'art' ? 'z.B. Caspar David Friedrich' : 'z.B. Wilseder Berg Rundweg'}
           />
         </div>
@@ -193,7 +204,7 @@ export function EntryForm({ entry, mode }: EntryFormProps) {
             required
             value={formData.date}
             onChange={(e) => setFormData((prev) => ({ ...prev, date: e.target.value }))}
-            className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-primary"
           />
         </div>
 
@@ -206,7 +217,7 @@ export function EntryForm({ entry, mode }: EntryFormProps) {
             required
             value={formData.status}
             onChange={(e) => setFormData((prev) => ({ ...prev, status: e.target.value as 'draft' | 'active' | 'inactive' }))}
-            className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-primary"
           >
             <option value="draft">Entwurf</option>
             <option value="active">Aktiv</option>
@@ -223,7 +234,7 @@ export function EntryForm({ entry, mode }: EntryFormProps) {
             type="url"
             value={formData.link}
             onChange={(e) => setFormData((prev) => ({ ...prev, link: e.target.value }))}
-            className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-primary"
             placeholder="https://..."
           />
         </div>
@@ -238,14 +249,48 @@ export function EntryForm({ entry, mode }: EntryFormProps) {
               <label htmlFor="cuisine" className="text-sm font-medium">
                 Küche *
               </label>
+              <div className="flex flex-wrap gap-2">
+                {formData.cuisine.map((c, i) => (
+                  <span
+                    key={i}
+                    className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary"
+                  >
+                    {c}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          cuisine: prev.cuisine.filter((_, idx) => idx !== i),
+                        }))
+                      }
+                      className="ml-1 text-primary/60 hover:text-primary"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
               <input
                 id="cuisine"
                 type="text"
-                required
-                value={formData.cuisine}
-                onChange={(e) => setFormData((prev) => ({ ...prev, cuisine: e.target.value }))}
-                className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                placeholder="z.B. Deutsch, Italienisch, Asiatisch"
+                value={cuisineInput}
+                onChange={(e) => setCuisineInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ',') {
+                    e.preventDefault();
+                    const val = cuisineInput.trim();
+                    if (val && !formData.cuisine.includes(val)) {
+                      setFormData((prev) => ({
+                        ...prev,
+                        cuisine: [...prev.cuisine, val],
+                      }));
+                    }
+                    setCuisineInput('');
+                  }
+                }}
+                className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-primary"
+                placeholder={formData.cuisine.length === 0 ? 'z.B. Deutsch, Italienisch — Enter zum Hinzufügen' : 'Weitere Küche hinzufügen…'}
               />
             </div>
             <div className="space-y-2">
@@ -257,9 +302,26 @@ export function EntryForm({ entry, mode }: EntryFormProps) {
                 type="text"
                 value={formData.address}
                 onChange={(e) => setFormData((prev) => ({ ...prev, address: e.target.value }))}
-                className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-primary"
                 placeholder="Straße, PLZ Ort"
               />
+            </div>
+            <div className="space-y-2">
+              <label htmlFor="price_range" className="text-sm font-medium">
+                Preisspanne (optional)
+              </label>
+              <select
+                id="price_range"
+                value={formData.price_range}
+                onChange={(e) => setFormData((prev) => ({ ...prev, price_range: e.target.value }))}
+                className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-primary"
+              >
+                {priceRangeOptions.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 
@@ -299,7 +361,7 @@ export function EntryForm({ entry, mode }: EntryFormProps) {
                 required
                 value={formData.museum}
                 onChange={(e) => setFormData((prev) => ({ ...prev, museum: e.target.value }))}
-                className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-primary"
                 placeholder="z.B. Hamburger Kunsthalle"
               />
             </div>
@@ -314,7 +376,7 @@ export function EntryForm({ entry, mode }: EntryFormProps) {
                 type="date"
                 value={formData.exhibition_start}
                 onChange={(e) => setFormData((prev) => ({ ...prev, exhibition_start: e.target.value }))}
-                className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-primary"
               />
             </div>
             <div className="space-y-2">
@@ -326,7 +388,7 @@ export function EntryForm({ entry, mode }: EntryFormProps) {
                 type="date"
                 value={formData.exhibition_end}
                 onChange={(e) => setFormData((prev) => ({ ...prev, exhibition_end: e.target.value }))}
-                className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-primary"
               />
             </div>
           </div>
@@ -348,7 +410,7 @@ export function EntryForm({ entry, mode }: EntryFormProps) {
                 min="0"
                 value={formData.distance_km}
                 onChange={(e) => setFormData((prev) => ({ ...prev, distance_km: e.target.value }))}
-                className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-primary"
                 placeholder="z.B. 12.5"
               />
             </div>
@@ -361,7 +423,7 @@ export function EntryForm({ entry, mode }: EntryFormProps) {
                 type="text"
                 value={formData.duration}
                 onChange={(e) => setFormData((prev) => ({ ...prev, duration: e.target.value }))}
-                className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-primary"
                 placeholder="z.B. 3-4 Stunden"
               />
             </div>
@@ -373,7 +435,7 @@ export function EntryForm({ entry, mode }: EntryFormProps) {
                 id="difficulty"
                 value={formData.difficulty}
                 onChange={(e) => setFormData((prev) => ({ ...prev, difficulty: e.target.value }))}
-                className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-primary"
               >
                 {difficultyOptions.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -405,7 +467,7 @@ export function EntryForm({ entry, mode }: EntryFormProps) {
           rows={8}
           value={formData.content}
           onChange={(e) => setFormData((prev) => ({ ...prev, content: e.target.value }))}
-          className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+          className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-hidden focus:ring-2 focus:ring-primary"
           placeholder="Deine Bewertung und Erfahrungen..."
         />
       </div>

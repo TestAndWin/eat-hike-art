@@ -48,7 +48,8 @@ function getMetadata(entry: Entry): string[] {
 
   if (entry.type === 'restaurant') {
     const r = entry as RestaurantEntry;
-    meta.push(r.cuisine);
+    meta.push(r.cuisine.join(', '));
+    if (r.price_range) meta.push(r.price_range);
   } else if (entry.type === 'art') {
     const a = entry as ArtEntry;
     meta.push(a.museum);
@@ -68,7 +69,7 @@ const firstImage = entry.images?.[0];
 <a href={href} class="group block h-full">
   <article class="relative flex h-full flex-col overflow-hidden rounded-2xl border border-border/60 bg-card shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-xl hover:border-border">
     <!-- Accent color indicator -->
-    <div class={`absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-${config.accentColor} via-${config.accentColor}/50 to-transparent`}></div>
+    <div class={`absolute top-0 left-0 right-0 h-0.5 bg-linear-to-r from-${config.accentColor} via-${config.accentColor}/50 to-transparent`}></div>
 
     <!-- Image -->
     {firstImage ? (
@@ -80,10 +81,10 @@ const firstImage = entry.images?.[0];
           loading="lazy"
         />
         <!-- Subtle overlay on hover -->
-        <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
+        <div class="absolute inset-0 bg-linear-to-t from-black/20 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
       </div>
     ) : (
-      <div class="relative flex aspect-[4/3] items-center justify-center bg-gradient-to-br from-sand-light to-sand/30">
+      <div class="relative flex aspect-[4/3] items-center justify-center bg-linear-to-br from-sand-light to-sand/30">
         <!-- Abstract placeholder pattern -->
         <div class="absolute inset-0 opacity-30">
           <div class={`absolute top-1/4 right-1/4 h-16 w-16 rounded-full bg-${config.accentColor}/20 blur-xl`}></div>

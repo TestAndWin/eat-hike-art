@@ -31,7 +31,7 @@ Rating system: 1-5 Lüneburg Gables as symbol (half gables allowed: 1, 1.5, 2, .
 |---------|--------------|-----|
 | Storage | File-based Markdown, Runtime außerhalb Git | [ADR-001](docs/adr/001-file-based-storage-with-markdown.md) |
 | Frontend | Astro + React Islands | [ADR-002](docs/adr/002-astro-frontend-framework.md) |
-| Styling | Tailwind CSS + shadcn/ui | [ADR-003](docs/adr/003-tailwind-css-with-shadcn-ui.md) |
+| Styling | Tailwind CSS v4 + shadcn/ui | [ADR-003](docs/adr/003-tailwind-css-with-shadcn-ui.md) |
 | Backend | Astro Server Endpoints + Service Layer | [ADR-004](docs/adr/004-astro-server-endpoints-with-service-layer.md) |
 | Auth | Simple Password + Session Cookie | [ADR-005](docs/adr/005-simple-password-authentication.md) |
 | Voice | Whisper API + Claude API | [ADR-006](docs/adr/006-voice-to-publish-with-whisper-and-claude.md) |
@@ -342,6 +342,17 @@ Install from: https://github.com/anthropics/claude-code/tree/main/plugins
 - [x] Whisper API integration (transcribe.ts endpoint)
 - [x] Claude API integration (generate.ts endpoint)
 - [x] Draft preview and editing (human-in-the-loop workflow)
+
+### Phase 8.5 Improvements: 
+- [x] Adresse beim Impressum entfernen
+- [x] mehr als einen Wert für Küche erlauben bei der Eingabe
+- [x] Update der libs (inkl. Tailwind v4 Migration)
+- [x] Preisspanne mit angeben bei Restaurants
+- [x] Bilder für Web anpassen, derzeit brauchen sie zu viel Speicher.
+- [x] Möglichkeit, dass man Bilder zuschneiden kann
+- [x] Reihenfolge der Bilder anpassbar
+- [ ] für inaktive Einträge Vorschau anbieten
+- [ ] Neuen Eintrag Dialog, dort für die Beschreibung auch die Spracheingabe erlauben.
 
 ### Phase 9:  
 - [ ] Backup script

@@ -326,7 +326,9 @@ function EntryPreview({ entry }: { entry: Entry }) {
         <div>
           <h4 className="font-semibold">{entry.name}</h4>
           {entry.type === 'restaurant' && (
-            <p className="text-sm text-muted-foreground">{entry.cuisine}</p>
+            <p className="text-sm text-muted-foreground">
+              {entry.cuisine.join(', ')}{entry.price_range ? ` · ${entry.price_range}` : ''}
+            </p>
           )}
           {entry.type === 'art' && (
             <p className="text-sm text-muted-foreground">{entry.museum}</p>

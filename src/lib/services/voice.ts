@@ -93,7 +93,8 @@ Das heutige Datum ist: ${new Date().toISOString().split('T')[0]}`;
 
 Extrahiere folgende Felder für ein RESTAURANT:
 - name: Name des Restaurants (Pflicht)
-- cuisine: Küchenstil (z.B. "Deutsch", "Italienisch", "Asiatisch")
+- cuisine: Küchenstile als Array (z.B. ["Deutsch"], ["Italienisch", "Mediterran"])
+- price_range: Preisspanne als "€", "€€", "€€€" oder "€€€€" falls erwähnt (€=günstig, €€=mittel, €€€=gehoben, €€€€=luxus)
 - rating: Gesamtbewertung 1-5 (als Durchschnitt der Einzelbewertungen, wenn nicht explizit genannt)
 - ratings: Objekt mit service, food, ambiance, value (je 1-5)
 - address: Adresse falls erwähnt
@@ -103,7 +104,8 @@ Extrahiere folgende Felder für ein RESTAURANT:
 JSON-Schema:
 {
   "name": "string",
-  "cuisine": "string",
+  "cuisine": ["string"],
+  "price_range": "€" | "€€" | "€€€" | "€€€€" | null,
   "rating": number,
   "ratings": {
     "service": number,
@@ -194,7 +196,8 @@ function validateAndBuildEntry(
       return {
         ...baseEntry,
         type: 'restaurant',
-        cuisine: (parsed.cuisine as string) || 'Unbekannt',
+        cuisine: Array.isArray(parsed.cuisine) ? parsed.cuisine : [(parsed.cuisine as string) || 'Unbekannt'],
+        price_range: validatePriceRange(parsed.price_range as string),
         ratings: {
           service: clampRating(ratings?.service ?? 3),
           food: clampRating(ratings?.food ?? 3),
@@ -233,6 +236,19 @@ function validateAndBuildEntry(
 function clampRating(value: number): number {
   const clamped = Math.max(1, Math.min(5, value));
   return Math.round(clamped * 2) / 2; // Round to nearest 0.5
+}
+
+/**
+ * Validate price range value
+ */
+function validatePriceRange(
+  value: string | undefined
+): '€' | '€€' | '€€€' | '€€€€' | undefined {
+  if (!value) return undefined;
+  if (value === '€' || value === '€€' || value === '€€€' || value === '€€€€') {
+    return value;
+  }
+  return undefined;
 }
 
 /**

@@ -5,3 +5,6 @@
 - [x] Why is the content of the md with html code, and not plain mark down?
 - [x] Wie kann ich halbe Sterne in der Bewertung eintragen?
 - [x] Burgermenu im mobile view
+
+Improvements
+

@@ -75,7 +75,9 @@ const cuisines = await getCuisines();
           </div>
           <div class="flex-1">
             <h2 class="font-semibold group-hover:text-primary">{entry.name}</h2>
-            <p class="text-sm text-muted-foreground">{entry.cuisine}</p>
+            <p class="text-sm text-muted-foreground">
+              {entry.cuisine.join(', ')}{entry.price_range ? ` · ${entry.price_range}` : ''}
+            </p>
           </div>
           <GableRating client:load rating={entry.rating} size="md" showValue />
         </a>

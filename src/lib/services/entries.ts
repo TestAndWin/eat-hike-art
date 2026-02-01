@@ -85,6 +85,13 @@ function parseEntry(fileContent: string, filename: string): Entry {
   // Normalize date to YYYY-MM-DD format
   const date = frontmatter.date ? normalizeDate(frontmatter.date) : '';
 
+  // Normalize cuisine: support legacy string format → convert to array
+  if (frontmatter.type === 'restaurant' && frontmatter.cuisine) {
+    if (typeof frontmatter.cuisine === 'string') {
+      frontmatter.cuisine = [frontmatter.cuisine];
+    }
+  }
+
   return {
     ...frontmatter,
     date,
@@ -187,7 +194,7 @@ export async function getLeaderboard(
   // Filter by cuisine for restaurants
   if (type === 'restaurant' && cuisine) {
     entries = (entries as RestaurantEntry[]).filter(
-      (e) => e.cuisine.toLowerCase() === cuisine.toLowerCase()
+      (e) => e.cuisine.some((c) => c.toLowerCase() === cuisine.toLowerCase())
     );
   }
 
@@ -199,7 +206,7 @@ export async function getLeaderboard(
  */
 export async function getCuisines(): Promise<string[]> {
   const entries = (await getActiveEntries('restaurant')) as RestaurantEntry[];
-  const cuisines = [...new Set(entries.map((e) => e.cuisine))];
+  const cuisines = [...new Set(entries.flatMap((e) => e.cuisine))];
   return cuisines.sort();
 }
 

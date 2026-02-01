@@ -56,7 +56,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
 
     // Validate type-specific fields
     if (type === 'restaurant') {
-      if (!body.cuisine || typeof body.cuisine !== 'string') {
+      if (!body.cuisine || !Array.isArray(body.cuisine) || body.cuisine.length === 0) {
         return new Response(
           JSON.stringify({ error: 'Küche ist erforderlich' }),
           { status: 400, headers: { 'Content-Type': 'application/json' } }
@@ -95,6 +95,7 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     if (type === 'restaurant') {
       Object.assign(entryData, {
         cuisine: body.cuisine,
+        price_range: body.price_range,
         ratings: body.ratings,
         address: body.address,
       });

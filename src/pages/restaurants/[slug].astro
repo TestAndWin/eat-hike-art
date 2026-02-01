@@ -31,7 +31,7 @@ const ratingLabels = {
 const ogImage = entry.images?.[0]
   ? `/api/images/restaurants/${entry.slug}/${entry.images[0]}`
   : undefined;
-const seoDescription = `${entry.name} - ${entry.cuisine} Restaurant mit ${entry.rating} Giebeln bewertet. ${entry.address || ''}`.trim();
+const seoDescription = `${entry.name} - ${entry.cuisine.join(', ')} Restaurant mit ${entry.rating} Giebeln bewertet. ${entry.address || ''}`.trim();
 ---
 
 <BaseLayout
@@ -53,9 +53,16 @@ const seoDescription = `${entry.name} - ${entry.cuisine} Restaurant mit ${entry.
 
     <header class="mb-8">
       <div class="mb-4 flex flex-wrap items-center gap-3">
-        <span class="rounded-full bg-muted px-3 py-1 text-sm font-medium">
-          {entry.cuisine}
-        </span>
+        {entry.cuisine.map((c) => (
+          <span class="rounded-full bg-muted px-3 py-1 text-sm font-medium">
+            {c}
+          </span>
+        ))}
+        {entry.price_range && (
+          <span class="rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary">
+            {entry.price_range}
+          </span>
+        )}
         <time class="text-sm text-muted-foreground" datetime={entry.date}>
           {formattedDate}
         </time>

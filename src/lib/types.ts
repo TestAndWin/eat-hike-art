@@ -14,7 +14,8 @@ export interface BaseEntry {
 // Restaurant-specific
 export interface RestaurantEntry extends BaseEntry {
   type: 'restaurant';
-  cuisine: string;
+  cuisine: string[];
+  price_range?: '€' | '€€' | '€€€' | '€€€€';
   ratings: {
     service: number;
     food: number;
